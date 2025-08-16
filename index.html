@@ -16,6 +16,10 @@
                 <span class="mdc-top-app-bar__title">日语五十音训练</span>
             </section>
             <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+                <button id="show-all-button" class="mdc-icon-button material-icons" aria-label="Show All Cards">
+                    <div class="mdc-icon-button__ripple"></div>
+                    view_list
+                </button>
                 <button id="settings-button" class="mdc-icon-button material-icons" aria-label="Settings">
                     <div class="mdc-icon-button__ripple"></div>
                     settings
@@ -24,104 +28,86 @@
         </div>
     </header>
 
-    <div class="card-container">
-        <div id="kana-card" class="mdc-card mdc-elevation--z4">
-            <h1 id="kana-display"></h1>
-        </div>
-        <form id="input-form">
-            <div class="mdc-text-field mdc-text-field--outlined">
-                <input type="text" id="romanji-input" class="mdc-text-field__input">
-                <div class="mdc-notched-outline">
-                    <div class="mdc-notched-outline__leading"></div>
-                    <div class="mdc-notched-outline__notch">
-                        <label for="romanji-input" class="mdc-floating-label">罗马音拼写</label>
-                    </div>
-                    <div class="mdc-notched-outline__trailing"></div>
+    <div class="main-content-container">
+        <div id="training-view" class="view">
+            <div class="card-container">
+                <div id="kana-card" class="mdc-card mdc-elevation--z4">
+                    <h1 id="kana-display"></h1>
                 </div>
+                <form id="input-form">
+                    <div class="mdc-text-field mdc-text-field--outlined">
+                        <input type="text" id="romanji-input" class="mdc-text-field__input">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="romanji-input" class="mdc-floating-label">罗马音拼写</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+                    <button class="mdc-button mdc-button--raised" type="submit">
+                        <span class="mdc-button__label">提交</span>
+                    </button>
+                </form>
+                <div id="feedback-display" class="feedback"></div>
             </div>
-            <button class="mdc-button mdc-button--raised" type="submit">
-                <span class="mdc-button__label">提交</span>
-            </button>
-        </form>
-        <div id="feedback-display" class="feedback"></div>
+        </div>
+
+        <div id="all-cards-view" class="view" style="display: none;">
+            <div class="all-cards-header">
+                <button id="back-button" class="mdc-icon-button material-icons">
+                    <div class="mdc-icon-button__ripple"></div>
+                    arrow_back
+                </button>
+                <span class="mdc-typography--headline5">所有假名</span>
+            </div>
+            <div id="all-cards-list" class="all-cards-grid">
+                </div>
+        </div>
     </div>
 
-    <aside id="settings-dialog" class="mdc-dialog" role="alertdialog" aria-modal="true" aria-labelledby="my-dialog-title" aria-describedby="my-dialog-content">
-        <div class="mdc-dialog__container">
-            <div class="mdc-dialog__surface">
-                <h2 class="mdc-dialog__title" id="my-dialog-title">训练设置</h2>
-                <div class="mdc-dialog__content" id="my-dialog-content">
-                    <div class="settings-group">
-                        <label>假名形式:</label>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="hiragana-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="hiragana-checkbox">平假名</label>
-                        </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="katakana-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="katakana-checkbox">片假名</label>
-                        </div>
+    <div id="settings-drawer" class="mdc-drawer mdc-drawer--dismissible">
+        <div class="mdc-drawer__content">
+            <h2 class="drawer-title">训练设置</h2>
+            <div class="settings-group">
+                <label>假名形式:</label>
+                <div class="mdc-form-field">
+                    <div class="mdc-checkbox">
+                        <input type="checkbox" id="hiragana-checkbox" class="mdc-checkbox__native-control" checked>
+                        <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
                     </div>
-
-                    <div class="settings-group">
-                        <label>假名类型:</label>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="seion-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="seion-checkbox">清音</label>
-                        </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="dakuon-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="dakuon-checkbox">浊音</label>
-                        </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="handakuon-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="handakuon-checkbox">半浊音</label>
-                        </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="youon-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="youon-checkbox">拗音</label>
-                        </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="special-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="special-checkbox">特殊假名</label>
-                        </div>
-                    </div>
+                    <label for="hiragana-checkbox">平假名</label>
                 </div>
-                <div class="mdc-dialog__actions">
-                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
-                        <div class="mdc-button__ripple"></div>
-                        <span class="mdc-button__label">取消</span>
-                    </button>
-                    <button type="button" id="settings-apply-button" class="mdc-button mdc-dialog__button">
-                        <div class="mdc-button__ripple"></div>
-                        <span class="mdc-button__label">应用</span>
-                    </button>
+                </div>
+            <div class="settings-group">
+                <label>假名类型:</label>
+                <div class="mdc-form-field">
+                    <div class="mdc-checkbox"><input type="checkbox" id="seion-checkbox" class="mdc-checkbox__native-control" checked><div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div></div>
+                    <label for="seion-checkbox">清音</label>
+                </div>
+                <div class="mdc-form-field">
+                    <div class="mdc-checkbox"><input type="checkbox" id="dakuon-checkbox" class="mdc-checkbox__native-control" checked><div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div></div>
+                    <label for="dakuon-checkbox">浊音</label>
+                </div>
+                <div class="mdc-form-field">
+                    <div class="mdc-checkbox"><input type="checkbox" id="handakuon-checkbox" class="mdc-checkbox__native-control" checked><div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div></div>
+                    <label for="handakuon-checkbox">半浊音</label>
+                </div>
+                <div class="mdc-form-field">
+                    <div class="mdc-checkbox"><input type="checkbox" id="youon-checkbox" class="mdc-checkbox__native-control" checked><div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div></div>
+                    <label for="youon-checkbox">拗音</label>
+                </div>
+                <div class="mdc-form-field">
+                    <div class="mdc-checkbox"><input type="checkbox" id="special-checkbox" class="mdc-checkbox__native-control" checked><div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div></div>
+                    <label for="special-checkbox">特殊假名</label>
                 </div>
             </div>
+            <button id="apply-settings-button" class="mdc-button mdc-button--raised mdc-button-full-width">
+                <span class="mdc-button__label">应用并开始训练</span>
+            </button>
         </div>
-        <div class="mdc-dialog__scrim"></div>
-    </aside>
+    </div>
+    <div class="mdc-drawer-scrim"></div>
 
     <script src="https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.js"></script>
     <script src="data.js"></script>
