@@ -51,7 +51,6 @@ function applySettings() {
                           (includeKatakana && kana.form === '片假名');
         
         // 2. 根据假名类型（清音/浊音等）过滤
-        // 注意：这里需要考虑拗音的类型
         let typeMatch = false;
         if (includeSeion && kana.type === '清音') {
             typeMatch = true;
@@ -66,7 +65,6 @@ function applySettings() {
         // 3. 处理拗音组的特殊情况
         const isYouon = kana.group === '拗音';
         if (isYouon) {
-            // 如果是拗音，只有当用户勾选了拗音选项时才匹配
             return includeYouon && formMatch && typeMatch;
         }
 
