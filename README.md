@@ -18,10 +18,11 @@
  * 总览模式：提供“显示所有卡片”功能，让您能一目了然地查看所有假名及其读音
  
 ### 项目构成：
- * index.html：网页的结构与布局
- * style.css：定义网页的UI 
- * data.js：五十音假名及罗马音数据
- * script.js：网站核心逻辑
+japanese-kana-card/
+│─index.html #网页的结构与布局
+│─style.css #定义网页的UI 
+│─data.js #五十音假名及罗马音数据
+│─script.js #网站核心逻辑
  ---
 
 > 本项目由 awa0427与Gemini 完成，由 Gemini AI 提供辅助与技术支持。
