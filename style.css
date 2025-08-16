@@ -11,6 +11,7 @@ body {
     color: #333;
 }
 
+/* 固定顶部导航栏 */
 .mdc-top-app-bar {
     position: fixed;
     top: 0;
@@ -18,16 +19,18 @@ body {
     z-index: 1000;
 }
 
+/* 主内容容器：为顶部导航栏留出空间，并让内容可以滚动 */
 .main-content-container {
+    padding-top: 64px; /* 顶部app-bar的高度 */
+    width: 100%;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding-top: 64px; /* 顶部app-bar的高度 */
-    width: 100%;
-    height: 100vh;
+    box-sizing: border-box;
 }
 
+/* 视图容器 */
 .view {
     width: 100%;
     height: 100%;
@@ -35,18 +38,20 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-top: 2rem;
+    padding: 16px;
     box-sizing: border-box;
 }
 
+/* 训练视图卡片容器 */
 .card-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 16px;
     width: 100%;
     max-width: 400px;
+    height: 100%;
+    min-height: 400px;
 }
 
 #kana-card {
@@ -100,14 +105,6 @@ body {
 /* 弹窗样式调整 */
 .mdc-dialog__surface {
     max-width: 80vw;
-    top: 56px; /* 将弹窗固定在顶部app-bar下方 */
-    transform: translateY(0) !important;
-}
-@media (min-width: 600px) {
-    .mdc-dialog__surface {
-        top: 50%;
-        transform: translateY(-50%) !important;
-    }
 }
 
 /* 设置选项组 */
@@ -127,8 +124,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 16px;
-    box-sizing: border-box;
+    padding: 16px 0;
     max-width: 800px;
 }
 .all-cards-grid {
@@ -144,8 +140,10 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 80px;
+    min-height: 80px;
     text-align: center;
+    box-sizing: border-box;
+    padding: 8px;
 }
 .kana-char {
     font-size: 2rem;
