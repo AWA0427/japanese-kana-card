@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语五十音训练</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="mdc-typography--headline4 header">日语五十音训练</div>
+
+    <div class="card-container">
+        <div id="kana-card" class="mdc-card mdc-elevation--z4">
+            <h1 id="kana-display">あ</h1>
+        </div>
+        <form id="input-form">
+            <div class="mdc-text-field mdc-text-field--outlined">
+                <input type="text" id="romanji-input" class="mdc-text-field__input">
+                <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                        <label for="romanji-input" class="mdc-floating-label">罗马音拼写</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                </div>
+            </div>
+            <button class="mdc-button mdc-button--raised" type="submit">
+                <span class="mdc-button__label">提交</span>
+            </button>
+        </form>
+        <div id="feedback-display" class="feedback"></div>
+    </div>
+
+    <div id="settings-dialog" class="mdc-dialog">
+        <div class="mdc-dialog__container">
+            <div class="mdc-dialog__surface">
+                <h2 class="mdc-dialog__title">训练设置</h2>
+                <div class="mdc-dialog__content">
+                    <div class="mdc-form-field">
+                        <label>选择假名形式:</label>
+                        <div class="mdc-checkbox">
+                            <input type="checkbox" id="hiragana-checkbox" class="mdc-checkbox__native-control" checked>
+                            <div class="mdc-checkbox__background">
+                                <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">...</svg>
+                            </div>
+                        </div>
+                        <label for="hiragana-checkbox">平假名</label>
+                        </div>
+                </div>
+                </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
