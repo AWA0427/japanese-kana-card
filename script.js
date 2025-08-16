@@ -4,27 +4,32 @@
 mdc.autoInit();
 
 // --- 获取DOM元素 ---
+const trainingView = document.getElementById('training-view');
+const allCardsView = document.getElementById('all-cards-view');
 const kanaDisplay = document.getElementById('kana-display');
 const romanjiInput = document.getElementById('romanji-input');
 const feedbackDisplay = document.getElementById('feedback-display');
 const inputForm = document.getElementById('input-form');
 const kanaCard = document.getElementById('kana-card');
 const settingsButton = document.getElementById('settings-button');
+const showAllButton = document.getElementById('show-all-button');
+const backButton = document.getElementById('back-button');
+const allCardsList = document.getElementById('all-cards-list');
 
-// 获取设置弹窗和相关复选框
-const settingsDialog = new mdc.dialog.MDCDialog(document.getElementById('settings-dialog'));
+// 获取设置抽屉和相关复选框
+const settingsDrawer = mdc.drawer.MDCDrawer.attachTo(document.getElementById('settings-drawer'));
 const hiraganaCheckbox = document.getElementById('hiragana-checkbox');
 const katakanaCheckbox = document.getElementById('katakana-checkbox');
 const seionCheckbox = document.getElementById('seion-checkbox');
 const dakuonCheckbox = document.getElementById('dakuon-checkbox');
 const handakuonCheckbox = document.getElementById('handakuon-checkbox');
 const specialCheckbox = document.getElementById('special-checkbox');
-const youonCheckbox = document.getElementById('youon-checkbox'); // 拗音复选框
-const settingsApplyButton = document.getElementById('settings-apply-button');
+const youonCheckbox = document.getElementById('youon-checkbox');
+const applySettingsButton = document.getElementById('apply-settings-button');
 
 // --- 状态变量 ---
 let currentKana = null;
-let filteredKanaList = []; // 初始为空，由 applySettings 填充
+let filteredKanaList = [];
 
 // --- 核心函数 ---
 
@@ -32,7 +37,6 @@ let filteredKanaList = []; // 初始为空，由 applySettings 填充
  * 根据用户设置过滤假名列表。
  */
 function applySettings() {
-    // 获取所有复选框的状态
     const includeHiragana = hiraganaCheckbox.checked;
     const includeKatakana = katakanaCheckbox.checked;
     const includeSeion = seionCheckbox.checked;
@@ -41,19 +45,15 @@ function applySettings() {
     const includeSpecial = specialCheckbox.checked;
     const includeYouon = youonCheckbox.checked;
 
-    // 过滤假名列表
     filteredKanaList = allKana.filter(kana => {
-        // 1. 根据假名形式（平假名/片假名）过滤
         const formMatch = (includeHiragana && kana.form === '平假名') ||
                           (includeKatakana && kana.form === '片假名');
         
-        // 2. 根据假名类型（清音/浊音等）过滤
         const typeMatch = (includeSeion && kana.type === '清音') ||
                           (includeDakuon && kana.type === '浊音') ||
                           (includeHandakuon && kana.type === '半浊音') ||
-                          (includeSpecial && kana.type === '特殊假名'); // 修正为 '特殊假名'
-
-        // 3. 拗音是一个特殊的“组”，需要单独处理
+                          (includeSpecial && kana.type === '特殊假名');
+        
         const isYouon = kana.group === '拗音';
         if (isYouon) {
             return includeYouon && formMatch && typeMatch;
@@ -62,12 +62,10 @@ function applySettings() {
         return formMatch && typeMatch;
     });
 
-    // 如果没有任何假名被选中，则默认包含所有假名
     if (filteredKanaList.length === 0) {
         filteredKanaList = allKana;
     }
 
-    // 更新界面
     selectRandomKana();
 }
 
@@ -86,17 +84,37 @@ function selectRandomKana() {
     kanaDisplay.textContent = currentKana.kana;
     romanjiInput.value = '';
     feedbackDisplay.textContent = '';
-    kanaCard.style.animation = 'none'; // 重置震动动画
+    kanaCard.style.animation = 'none';
+    romanjiInput.focus(); // 自动聚焦输入框，解决键盘问题
+}
+
+/**
+ * 动态生成并显示所有假名卡片。
+ */
+function displayAllCards() {
+    allCardsList.innerHTML = '';
+    allKana.forEach(kana => {
+        const card = document.createElement('div');
+        card.className = 'mdc-card all-card';
+        card.innerHTML = `<span class="kana-char">${kana.kana}</span><br><span class="romanji-char">${Array.isArray(kana.romanji) ? kana.romanji.join(' / ') : kana.romanji}</span>`;
+        allCardsList.appendChild(card);
+    });
+}
+
+/**
+ * 切换视图。
+ */
+function switchView(viewId) {
+    trainingView.style.display = 'none';
+    allCardsView.style.display = 'none';
+    document.getElementById(viewId).style.display = 'flex';
 }
 
 // --- 事件监听器 ---
 
-// 检查用户输入
 inputForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const userInput = romanjiInput.value.toLowerCase().trim();
-
-    // 检查用户输入是否在正确罗马音的数组中
     const isCorrect = Array.isArray(currentKana.romanji) ? currentKana.romanji.includes(userInput) : currentKana.romanji === userInput;
     
     if (isCorrect) {
@@ -104,7 +122,7 @@ inputForm.addEventListener('submit', (e) => {
         feedbackDisplay.style.color = 'green';
         setTimeout(() => {
             selectRandomKana();
-        }, 1000);
+        }, 500); // 略微缩短切换时间
     } else {
         const correctRomanji = Array.isArray(currentKana.romanji) ? currentKana.romanji.join(' / ') : currentKana.romanji;
         feedbackDisplay.textContent = `错误！正确读音: ${correctRomanji}`;
@@ -116,27 +134,31 @@ inputForm.addEventListener('submit', (e) => {
     }
 });
 
-// 打开设置弹窗
+// 打开设置抽屉
 settingsButton.addEventListener('click', () => {
-    settingsDialog.open();
+    settingsDrawer.open = true;
 });
 
-// 为设置弹窗的“应用”按钮添加监听器
-settingsApplyButton.addEventListener('click', () => {
+// 显示所有卡片视图
+showAllButton.addEventListener('click', () => {
+    switchView('all-cards-view');
+    displayAllCards();
+});
+
+// 返回训练视图
+backButton.addEventListener('click', () => {
+    switchView('training-view');
+    selectRandomKana(); // 返回时开始新一轮训练
+});
+
+// 应用设置并关闭抽屉
+applySettingsButton.addEventListener('click', () => {
     applySettings();
-    settingsDialog.close();
+    settingsDrawer.open = false;
 });
-
 
 // 页面加载时开始
 window.onload = () => {
-    // 默认选中所有复选框，然后应用设置
-    hiraganaCheckbox.checked = true;
-    katakanaCheckbox.checked = true;
-    seionCheckbox.checked = true;
-    dakuonCheckbox.checked = true;
-    handakuonCheckbox.checked = true;
-    specialCheckbox.checked = true;
-    youonCheckbox.checked = true;
     applySettings();
+    switchView('training-view');
 };
