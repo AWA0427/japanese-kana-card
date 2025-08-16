@@ -66,13 +66,16 @@ function applySettings() {
         // 3. 处理拗音组的特殊情况
         const isYouon = kana.group === '拗音';
         if (isYouon) {
+            // 如果是拗音，只有当用户勾选了拗音选项时才匹配
             return includeYouon && formMatch && typeMatch;
         }
 
+        // 非拗音假名
         return formMatch && typeMatch;
     });
 
     if (filteredKanaList.length === 0) {
+        // 如果没有符合条件的假名，则默认包含所有假名
         filteredKanaList = allKana;
     }
 
@@ -119,7 +122,10 @@ function displayAllCards() {
 function switchView(viewId) {
     trainingView.style.display = 'none';
     allCardsView.style.display = 'none';
-    document.getElementById(viewId).style.display = 'flex';
+    const targetView = document.getElementById(viewId);
+    if (targetView) {
+        targetView.style.display = 'flex';
+    }
 }
 
 // --- 事件监听器 ---
