@@ -16,8 +16,8 @@ const showAllButton = document.getElementById('show-all-button');
 const backButton = document.getElementById('back-button');
 const allCardsList = document.getElementById('all-cards-list');
 
-// 获取设置抽屉和相关复选框
-const settingsDrawer = mdc.drawer.MDCDrawer.attachTo(document.getElementById('settings-drawer'));
+// 获取设置弹窗和相关复选框
+const settingsDialog = new mdc.dialog.MDCDialog(document.getElementById('settings-dialog'));
 const hiraganaCheckbox = document.getElementById('hiragana-checkbox');
 const katakanaCheckbox = document.getElementById('katakana-checkbox');
 const seionCheckbox = document.getElementById('seion-checkbox');
@@ -25,7 +25,7 @@ const dakuonCheckbox = document.getElementById('dakuon-checkbox');
 const handakuonCheckbox = document.getElementById('handakuon-checkbox');
 const specialCheckbox = document.getElementById('special-checkbox');
 const youonCheckbox = document.getElementById('youon-checkbox');
-const applySettingsButton = document.getElementById('apply-settings-button');
+const settingsApplyButton = document.getElementById('settings-apply-button');
 
 // --- 状态变量 ---
 let currentKana = null;
@@ -115,6 +115,7 @@ function switchView(viewId) {
 inputForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const userInput = romanjiInput.value.toLowerCase().trim();
+
     const isCorrect = Array.isArray(currentKana.romanji) ? currentKana.romanji.includes(userInput) : currentKana.romanji === userInput;
     
     if (isCorrect) {
@@ -122,7 +123,7 @@ inputForm.addEventListener('submit', (e) => {
         feedbackDisplay.style.color = 'green';
         setTimeout(() => {
             selectRandomKana();
-        }, 500); // 略微缩短切换时间
+        }, 500);
     } else {
         const correctRomanji = Array.isArray(currentKana.romanji) ? currentKana.romanji.join(' / ') : currentKana.romanji;
         feedbackDisplay.textContent = `错误！正确读音: ${correctRomanji}`;
@@ -134,9 +135,9 @@ inputForm.addEventListener('submit', (e) => {
     }
 });
 
-// 打开设置抽屉
+// 打开设置弹窗
 settingsButton.addEventListener('click', () => {
-    settingsDrawer.open = true;
+    settingsDialog.open();
 });
 
 // 显示所有卡片视图
@@ -148,13 +149,13 @@ showAllButton.addEventListener('click', () => {
 // 返回训练视图
 backButton.addEventListener('click', () => {
     switchView('training-view');
-    selectRandomKana(); // 返回时开始新一轮训练
+    selectRandomKana();
 });
 
-// 应用设置并关闭抽屉
-applySettingsButton.addEventListener('click', () => {
+// 应用设置
+settingsApplyButton.addEventListener('click', () => {
     applySettings();
-    settingsDrawer.open = false;
+    settingsDialog.close(); // 确保弹窗能关闭
 });
 
 // 页面加载时开始
