@@ -61,6 +61,8 @@ body {
     font-size: 1.2rem;
     font-weight: bold;
 
+/* style.css */
+
 /* 新增的布局样式 */
 .main-content-container {
     display: flex;
@@ -88,28 +90,6 @@ body {
     z-index: 1000;
 }
 
-/* 设置抽屉样式 */
-#settings-drawer {
-    z-index: 1001;
-    top: 64px; /* 位于app-bar下方 */
-    height: calc(100vh - 64px);
-    width: 250px; /* 固定宽度 */
-}
-.drawer-title {
-    padding: 1rem 16px;
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-}
-.settings-group {
-    padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
-}
-.mdc-button-full-width {
-    width: 100%;
-    margin-top: 1rem;
-}
-
 /* 所有卡片视图样式 */
 .all-cards-header {
     width: 100%;
@@ -117,6 +97,7 @@ body {
     align-items: center;
     padding: 16px;
     box-sizing: border-box;
+    max-width: 800px;
 }
 .all-cards-grid {
     display: grid;
@@ -142,4 +123,3 @@ body {
     font-size: 0.8rem;
     color: #666;
 }
-
