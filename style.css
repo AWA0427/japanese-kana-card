@@ -1,74 +1,28 @@
 /* style.css */
+
 body {
-    background-color: #f5f5f5; /* 浅灰色背景 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
     font-family: 'Roboto', sans-serif;
-}
-
-.header {
-    margin-bottom: 2rem;
-    color: #333;
-}
-
-.card-container {
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
-    width: 300px;
-}
-
-#kana-card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 200px;
-    background-color: #fff;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-#kana-card:hover {
-    transform: translateY(-5px);
-}
-
-#kana-display {
-    font-size: 8rem;
+    background-color: #f5f5f5;
     color: #333;
 }
 
-#input-form {
+.mdc-top-app-bar {
+    position: fixed;
+    top: 0;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    z-index: 1000;
 }
 
-/* 震动动画 */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-}
-
-.feedback {
-    font-size: 1.2rem;
-    font-weight: bold;
-
-/* style.css */
-
-/* 新增的布局样式 */
 .main-content-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     padding-top: 64px; /* 顶部app-bar的高度 */
     width: 100%;
     height: 100vh;
@@ -80,14 +34,91 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     padding-top: 2rem;
+    box-sizing: border-box;
 }
 
-.mdc-top-app-bar {
-    position: fixed;
+.card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
     width: 100%;
-    z-index: 1000;
+    max-width: 400px;
+}
+
+#kana-card {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+#kana-display {
+    font-size: 5rem;
+    font-weight: 500;
+    margin: 0;
+    color: #4CAF50;
+    text-align: center;
+}
+
+#input-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mdc-text-field {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.feedback {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* 震动动画 */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+/* 弹窗样式调整 */
+.mdc-dialog__surface {
+    max-width: 80vw;
+    top: 56px; /* 将弹窗固定在顶部app-bar下方 */
+    transform: translateY(0) !important;
+}
+@media (min-width: 600px) {
+    .mdc-dialog__surface {
+        top: 50%;
+        transform: translateY(-50%) !important;
+    }
+}
+
+/* 设置选项组 */
+.settings-group {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+}
+.mdc-form-field {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 /* 所有卡片视图样式 */
@@ -95,6 +126,7 @@ body {
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     padding: 16px;
     box-sizing: border-box;
     max-width: 800px;
