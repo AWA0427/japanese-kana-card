@@ -134,6 +134,9 @@ body {
     padding: 16px;
     width: 100%;
     max-width: 800px;
+    /* 核心修复：让网格容器可以滚动 */
+    overflow-y: auto;
+    height: calc(100vh - 64px - 60px); /* 减去顶部栏和底部内边距 */
 }
 .all-card {
     display: flex;
