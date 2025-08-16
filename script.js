@@ -46,14 +46,24 @@ function applySettings() {
     const includeYouon = youonCheckbox.checked;
 
     filteredKanaList = allKana.filter(kana => {
+        // 1. 根据假名形式（平假名/片假名）过滤
         const formMatch = (includeHiragana && kana.form === '平假名') ||
                           (includeKatakana && kana.form === '片假名');
         
-        const typeMatch = (includeSeion && kana.type === '清音') ||
-                          (includeDakuon && kana.type === '浊音') ||
-                          (includeHandakuon && kana.type === '半浊音') ||
-                          (includeSpecial && kana.type === '特殊假名');
-        
+        // 2. 根据假名类型（清音/浊音等）过滤
+        // 注意：这里需要考虑拗音的类型
+        let typeMatch = false;
+        if (includeSeion && kana.type === '清音') {
+            typeMatch = true;
+        } else if (includeDakuon && kana.type === '浊音') {
+            typeMatch = true;
+        } else if (includeHandakuon && kana.type === '半浊音') {
+            typeMatch = true;
+        } else if (includeSpecial && kana.type === '特殊假名') {
+            typeMatch = true;
+        }
+
+        // 3. 处理拗音组的特殊情况
         const isYouon = kana.group === '拗音';
         if (isYouon) {
             return includeYouon && formMatch && typeMatch;
@@ -96,7 +106,9 @@ function displayAllCards() {
     allKana.forEach(kana => {
         const card = document.createElement('div');
         card.className = 'mdc-card all-card';
-        card.innerHTML = `<span class="kana-char">${kana.kana}</span><br><span class="romanji-char">${Array.isArray(kana.romanji) ? kana.romanji.join(' / ') : kana.romanji}</span>`;
+        // 检查 romanji 是否为数组，并正确显示
+        const romanjiText = Array.isArray(kana.romanji) ? kana.romanji.join(' / ') : kana.romanji;
+        card.innerHTML = `<span class="kana-char">${kana.kana}</span><br><span class="romanji-char">${romanjiText}</span>`;
         allCardsList.appendChild(card);
     });
 }
