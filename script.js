@@ -49,36 +49,42 @@ function applySettings() {
         // 1. 根据假名形式（平假名/片假名）过滤
         const formMatch = (includeHiragana && kana.form === '平假名') ||
                           (includeKatakana && kana.form === '片假名');
-        
-        // 2. 根据假名类型（清音/浊音等）过滤
-        let typeMatch = false;
-        if (includeSeion && kana.type === '清音') {
-            typeMatch = true;
-        } else if (includeDakuon && kana.type === '浊音') {
-            typeMatch = true;
-        } else if (includeHandakuon && kana.type === '半浊音') {
-            typeMatch = true;
-        } else if (includeSpecial && kana.type === '特殊假名') {
-            typeMatch = true;
-        }
 
-        // 3. 处理拗音组的特殊情况
+        // 2. 根据假名类型（清音/浊音等）过滤
+        // 新增的逻辑：如果假名是拗音或特殊假名，则不依赖于清音/浊音等复选框的判断
+        let typeMatch = false;
+        
+        // 判断是否是拗音
         const isYouon = kana.group === '拗音';
         if (isYouon) {
-            return includeYouon && formMatch && typeMatch;
+            typeMatch = includeYouon;
+        } 
+        
+        // 判断是否是特殊假名
+        const isSpecial = kana.type === '特殊假名';
+        if (isSpecial) {
+            typeMatch = includeSpecial;
         }
 
-        // 非拗音假名
+        // 如果不是拗音也不是特殊假名，则按照常规类型判断
+        if (!isYouon && !isSpecial) {
+            typeMatch = (includeSeion && kana.type === '清音') ||
+                        (includeDakuon && kana.type === '浊音') ||
+                        (includeHandakuon && kana.type === '半浊音');
+        }
+
+        // 3. 整合所有条件
         return formMatch && typeMatch;
     });
 
+    // 如果没有符合条件的假名，则默认包含所有假名
     if (filteredKanaList.length === 0) {
-        // 如果没有符合条件的假名，则默认包含所有假名
         filteredKanaList = allKana;
     }
 
     selectRandomKana();
 }
+
 
 /**
  * 从过滤后的列表中随机选择一个假名，并更新卡片显示。
@@ -96,7 +102,7 @@ function selectRandomKana() {
     romanjiInput.value = '';
     feedbackDisplay.textContent = '';
     kanaCard.style.animation = 'none';
-    romanjiInput.focus(); // 自动聚焦输入框，解决键盘问题
+    romanjiInput.focus();
 }
 
 /**
@@ -107,7 +113,6 @@ function displayAllCards() {
     allKana.forEach(kana => {
         const card = document.createElement('div');
         card.className = 'mdc-card all-card';
-        // 检查 romanji 是否为数组，并正确显示
         const romanjiText = Array.isArray(kana.romanji) ? kana.romanji.join(' / ') : kana.romanji;
         card.innerHTML = `<span class="kana-char">${kana.kana}</span><br><span class="romanji-char">${romanjiText}</span>`;
         allCardsList.appendChild(card);
@@ -151,30 +156,25 @@ inputForm.addEventListener('submit', (e) => {
     }
 });
 
-// 打开设置弹窗
 settingsButton.addEventListener('click', () => {
     settingsDialog.open();
 });
 
-// 显示所有卡片视图
 showAllButton.addEventListener('click', () => {
     switchView('all-cards-view');
     displayAllCards();
 });
 
-// 返回训练视图
 backButton.addEventListener('click', () => {
     switchView('training-view');
     selectRandomKana();
 });
 
-// 应用设置
 settingsApplyButton.addEventListener('click', () => {
     applySettings();
-    settingsDialog.close(); // 确保弹窗能关闭
+    settingsDialog.close();
 });
 
-// 页面加载时开始
 window.onload = () => {
     applySettings();
     switchView('training-view');
