@@ -61,10 +61,10 @@ function applySettings() {
     } else {
         // 第二步：在已筛选的列表中，根据假名种类进行二次筛选
         filteredKanaList = tempFilteredList.filter(kana => {
-            const typeMatch = (includeSeion && kana.type === '清音') ||
+            const typeMatch = (includeSeion && (kana.type === '清音' || kana.type === '拔音'))
                               (includeDakuon && kana.type === '浊音') ||
                               (includeHandakuon && kana.type === '半浊音') ||
-                              (includeYouon && kana.group === '拗音') ||
+                              (includeYouon && kana.type === '拗音')
                               (includeSpecial && kana.type === '特殊假名');
             return typeMatch;
         });
