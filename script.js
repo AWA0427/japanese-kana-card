@@ -30,11 +30,12 @@ const settingsApplyButton = document.getElementById('settings-apply-button');
 // --- 状态变量 ---
 let currentKana = null;
 let filteredKanaList = [];
+let unusedKanaList = []; // 新增：存放未被练习过的假名
 
 // --- 核心函数 ---
 
 /**
- * 根据用户设置过滤假名列表。
+ * 根据用户设置过滤假名列表，并初始化 unusedKanaList。
  */
 function applySettings() {
     const includeHiragana = hiraganaCheckbox.checked;
@@ -64,7 +65,7 @@ function applySettings() {
             const typeMatch = (includeSeion && (kana.type === '清音' || kana.type === '拔音')) ||
                               (includeDakuon && kana.type === '浊音') ||
                               (includeHandakuon && kana.type === '半浊音') ||
-                              (includeYouon && kana.type === '拗音') || // 核心修复点
+                              (includeYouon && kana.type === '拗音') ||
                               (includeSpecial && kana.type === '特殊假名');
             return typeMatch;
         });
@@ -75,21 +76,35 @@ function applySettings() {
         filteredKanaList = allKana;
     }
 
+    // 将筛选后的假名列表复制到未使用列表中
+    unusedKanaList = [...filteredKanaList];
+
     selectRandomKana();
 }
 
 /**
- * 从过滤后的列表中随机选择一个假名，并更新卡片显示。
+ * 从未使用列表中随机选择一个假名，并更新卡片显示。
  */
 function selectRandomKana() {
-    if (filteredKanaList.length === 0) {
+    // 如果 unusedKanaList 为空，说明所有卡片都已出现过一遍，需要重置
+    if (unusedKanaList.length === 0) {
+        unusedKanaList = [...filteredKanaList];
+    }
+    
+    if (unusedKanaList.length === 0) {
         kanaDisplay.textContent = '请在设置中选择假名';
         romanjiInput.disabled = true;
         return;
     }
+    
     romanjiInput.disabled = false;
-    const randomIndex = Math.floor(Math.random() * filteredKanaList.length);
-    currentKana = filteredKanaList[randomIndex];
+    // 从 unusedKanaList 中随机选择一个索引
+    const randomIndex = Math.floor(Math.random() * unusedKanaList.length);
+    // 从列表中取出假名
+    currentKana = unusedKanaList[randomIndex];
+    // 从 unusedKanaList 中移除该假名，确保它在一个周期内不会重复出现
+    unusedKanaList.splice(randomIndex, 1);
+    
     kanaDisplay.textContent = currentKana.kana;
     romanjiInput.value = '';
     feedbackDisplay.textContent = '';
@@ -119,7 +134,7 @@ function switchView(viewId) {
     allCardsView.style.display = 'none';
     const targetView = document.getElementById(viewId);
     if (targetView) {
-            targetView.style.display = 'flex';
+        targetView.style.display = 'flex';
     }
 }
 
