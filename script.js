@@ -47,7 +47,7 @@ function applySettings() {
 
     let tempFilteredList = [];
 
-    // 第一步：根据假名形式筛选
+    // 第一步：根据假名形式筛选 (平假名 或 片假名)
     tempFilteredList = allKana.filter(kana => {
         const formMatch = (includeHiragana && kana.form === '平假名') || (includeKatakana && kana.form === '片假名');
         return formMatch;
@@ -61,10 +61,10 @@ function applySettings() {
     } else {
         // 第二步：在已筛选的列表中，根据假名种类进行二次筛选
         filteredKanaList = tempFilteredList.filter(kana => {
-            const typeMatch = (includeSeion && kana.type === '清音') || 
+            const typeMatch = (includeSeion && (kana.type === '清音' || kana.type === '拔音')) ||
                               (includeDakuon && kana.type === '浊音') ||
                               (includeHandakuon && kana.type === '半浊音') ||
-                              (includeYouon && kana.type === '拗音') ||
+                              (includeYouon && kana.type === '拗音') || // 核心修复点
                               (includeSpecial && kana.type === '特殊假名');
             return typeMatch;
         });
@@ -119,7 +119,7 @@ function switchView(viewId) {
     allCardsView.style.display = 'none';
     const targetView = document.getElementById(viewId);
     if (targetView) {
-        targetView.style.display = 'flex';
+            targetView.style.display = 'flex';
     }
 }
 
