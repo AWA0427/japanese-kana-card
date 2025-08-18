@@ -47,30 +47,36 @@ function applySettings() {
 
     let tempFilteredList = [];
 
-    // 第一步：根据假名形式筛选 (平假名 或 片假名)
+    // 第一步：根据假名形式筛选
     tempFilteredList = allKana.filter(kana => {
         const formMatch = (includeHiragana && kana.form === '平假名') || (includeKatakana && kana.form === '片假名');
         return formMatch;
     });
 
-    // 第二步：在已筛选的列表中，根据假名种类进行二次筛选
-    filteredKanaList = tempFilteredList.filter(kana => {
-        const typeMatch = (includeSeion && kana.type === '清音') ||
-                          (includeDakuon && kana.type === '浊音') ||
-                          (includeHandakuon && kana.type === '半浊音') ||
-                          (includeYouon && kana.group === '拗音') ||
-                          (includeSpecial && kana.type === '特殊假名');
-        return typeMatch;
-    });
+    // 如果没有任何“假名种类”被选中，则默认包含所有假名种类。
+    const noTypeSelected = !includeSeion && !includeDakuon && !includeHandakuon && !includeYouon && !includeSpecial;
 
-    // 如果没有任何假名被勾选，则默认包含所有假名
+    if (noTypeSelected) {
+        filteredKanaList = tempFilteredList;
+    } else {
+        // 第二步：在已筛选的列表中，根据假名种类进行二次筛选
+        filteredKanaList = tempFilteredList.filter(kana => {
+            const typeMatch = (includeSeion && kana.type === '清音') ||
+                              (includeDakuon && kana.type === '浊音') ||
+                              (includeHandakuon && kana.type === '半浊音') ||
+                              (includeYouon && kana.group === '拗音') ||
+                              (includeSpecial && kana.type === '特殊假名');
+            return typeMatch;
+        });
+    }
+
+    // 如果最终列表为空，则回到默认状态（所有假名）
     if (filteredKanaList.length === 0) {
         filteredKanaList = allKana;
     }
 
     selectRandomKana();
 }
-
 
 /**
  * 从过滤后的列表中随机选择一个假名，并更新卡片显示。
