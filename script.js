@@ -45,41 +45,35 @@ function applySettings() {
     const includeYouon = youonCheckbox.checked;
     const includeSpecial = specialCheckbox.checked;
 
-    filteredKanaList = allKana.filter(kana => {
-        // 首先，精确筛选假名形式
-        const formMatch = (includeHiragana && kana.form === '平假名') ||
-                          (includeKatakana && kana.form === '片假名');
+    // 创建一个包含所有筛选条件的空数组
+    let selectedKana = [];
 
-        if (!formMatch) {
-            return false;
-        }
-
-        // 然后，根据假名类型和种类进行筛选
-        let typeMatch = false;
-
-        // 处理清音、浊音、半浊音和拗音
-        const isRegularOrYouon = kana.type !== '特殊假名';
-        if (isRegularOrYouon) {
-            typeMatch = (includeSeion && kana.type === '清音') ||
-                        (includeDakuon && kana.type === '浊音') ||
-                        (includeHandakuon && kana.type === '半浊音') ||
-                        (includeYouon && kana.group === '拗音');
-        }
-
-        // 处理特殊假名
-        const isSpecial = kana.type === '特殊假名';
-        if (isSpecial) {
-            typeMatch = includeSpecial;
-        }
-
+    // 筛选出所有符合“假名种类”条件的假名
+    const typeFiltered = allKana.filter(kana => {
+        // 检查假名种类是否被选中
+        const typeMatch = (includeSeion && kana.type === '清音') ||
+                          (includeDakuon && kana.type === '浊音') ||
+                          (includeHandakuon && kana.type === '半浊音') ||
+                          (includeYouon && kana.group === '拗音') ||
+                          (includeSpecial && kana.type === '特殊假名');
+        
         return typeMatch;
     });
 
-    if (filteredKanaList.length === 0) {
-        // 如果没有任何假名被勾选，则默认显示全部
-        filteredKanaList = allKana;
+    // 在上一步筛选出的结果中，再根据“假名形式”进行二次筛选
+    selectedKana = typeFiltered.filter(kana => {
+        const formMatch = (includeHiragana && kana.form === '平假名') ||
+                          (includeKatakana && kana.form === '片假名');
+        
+        return formMatch;
+    });
+
+    // 如果没有符合条件的假名，则默认包含所有假名
+    if (selectedKana.length === 0) {
+        selectedKana = allKana;
     }
 
+    filteredKanaList = selectedKana;
     selectRandomKana();
 }
 
