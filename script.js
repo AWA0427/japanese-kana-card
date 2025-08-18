@@ -45,24 +45,30 @@ function applySettings() {
     const includeYouon = youonCheckbox.checked;
     const includeSpecial = specialCheckbox.checked;
 
-    // 筛选出所有符合条件的假名
-    filteredKanaList = allKana.filter(kana => {
-        // 假名形式筛选
-        const formMatch = (includeHiragana && kana.form === '平假名') || (includeKatakana && kana.form === '片假名');
-        if (!formMatch) return false;
-
-        // 假名种类筛选
+    // 首先，创建一个基于所有勾选条件的假名集合
+    const tempFilteredList = allKana.filter(kana => {
+        // 假名形式筛选 (平假名 或 片假名)
+        const formMatch = (includeHiragana && kana.form === '平假名') ||
+                          (includeKatakana && kana.form === '片假名');
+        
+        // 假名种类筛选 (清音、浊音、半浊音、拗音)
         const typeMatch = (includeSeion && kana.type === '清音') ||
                           (includeDakuon && kana.type === '浊音') ||
-                          (includeHandakuon && kana.type === '半浊音') ||
-                          (includeYouon && kana.group === '拗音') ||
-                          (includeSpecial && kana.type === '特殊假名');
-        
-        return typeMatch;
+                          (includeHandakuon && kana.type === '半浊音');
+
+        // 拗音和特殊假名的精确匹配
+        const youonMatch = includeYouon && kana.group === '拗音';
+        const specialMatch = includeSpecial && kana.type === '特殊假名';
+
+        // 返回所有符合任意一个“种类”条件的假名
+        return formMatch && (typeMatch || youonMatch || specialMatch);
     });
 
+    // 确保列表没有重复项，这是最后的保险措施
+    filteredKanaList = [...new Set(tempFilteredList)];
+
+    // 如果没有任何假名被勾选，则默认显示全部
     if (filteredKanaList.length === 0) {
-        // 如果没有符合条件的假名，则默认包含所有假名
         filteredKanaList = allKana;
     }
 
