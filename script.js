@@ -45,33 +45,38 @@ function applySettings() {
     const includeYouon = youonCheckbox.checked;
     const includeSpecial = specialCheckbox.checked;
 
-    const selectedKana = [];
+    filteredKanaList = allKana.filter(kana => {
+        // 首先，精确筛选假名形式
+        const formMatch = (includeHiragana && kana.form === '平假名') ||
+                          (includeKatakana && kana.form === '片假名');
 
-    // 根据假名形式和种类筛选
-    if (includeSeion || includeDakuon || includeHandakuon || includeYouon) {
-        selectedKana.push(...allKana.filter(kana => {
-            const formMatch = (includeHiragana && kana.form === '平假名') ||
-                              (includeKatakana && kana.form === '片假名');
-            const typeMatch = (includeSeion && kana.type === '清音') ||
-                              (includeDakuon && kana.type === '浊音') ||
-                              (includeHandakuon && kana.type === '半浊音') ||
-                              (includeYouon && kana.group === '拗音');
-            return formMatch && typeMatch;
-        }));
-    }
+        if (!formMatch) {
+            return false;
+        }
 
-    // 单独处理特殊假名
-    if (includeSpecial) {
-        selectedKana.push(...allKana.filter(kana => {
-            return kana.type === '特殊假名';
-        }));
-    }
+        // 然后，根据假名类型和种类进行筛选
+        let typeMatch = false;
 
-    // 确保没有重复的假名
-    filteredKanaList = [...new Set(selectedKana)];
+        // 处理清音、浊音、半浊音和拗音
+        const isRegularOrYouon = kana.type !== '特殊假名';
+        if (isRegularOrYouon) {
+            typeMatch = (includeSeion && kana.type === '清音') ||
+                        (includeDakuon && kana.type === '浊音') ||
+                        (includeHandakuon && kana.type === '半浊音') ||
+                        (includeYouon && kana.group === '拗音');
+        }
 
-    // 如果没有符合条件的假名，则默认包含所有假名
+        // 处理特殊假名
+        const isSpecial = kana.type === '特殊假名';
+        if (isSpecial) {
+            typeMatch = includeSpecial;
+        }
+
+        return typeMatch;
+    });
+
     if (filteredKanaList.length === 0) {
+        // 如果没有任何假名被勾选，则默认显示全部
         filteredKanaList = allKana;
     }
 
