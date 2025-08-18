@@ -23,8 +23,8 @@ const katakanaCheckbox = document.getElementById('katakana-checkbox');
 const seionCheckbox = document.getElementById('seion-checkbox');
 const dakuonCheckbox = document.getElementById('dakuon-checkbox');
 const handakuonCheckbox = document.getElementById('handakuon-checkbox');
-const specialCheckbox = document.getElementById('special-checkbox');
 const youonCheckbox = document.getElementById('youon-checkbox');
+const specialCheckbox = document.getElementById('special-checkbox');
 const settingsApplyButton = document.getElementById('settings-apply-button');
 
 // --- 状态变量 ---
@@ -42,40 +42,33 @@ function applySettings() {
     const includeSeion = seionCheckbox.checked;
     const includeDakuon = dakuonCheckbox.checked;
     const includeHandakuon = handakuonCheckbox.checked;
-    const includeSpecial = specialCheckbox.checked;
     const includeYouon = youonCheckbox.checked;
+    const includeSpecial = specialCheckbox.checked;
 
-    filteredKanaList = allKana.filter(kana => {
-        // 1. 根据假名形式（平假名/片假名）过滤
-        const formMatch = (includeHiragana && kana.form === '平假名') ||
-                          (includeKatakana && kana.form === '片假名');
+    const selectedKana = [];
 
-        // 2. 根据假名类型（清音/浊音等）过滤
-        // 新增的逻辑：如果假名是拗音或特殊假名，则不依赖于清音/浊音等复选框的判断
-        let typeMatch = false;
-        
-        // 判断是否是拗音
-        const isYouon = kana.group === '拗音';
-        if (isYouon) {
-            typeMatch = includeYouon;
-        } 
-        
-        // 判断是否是特殊假名
-        const isSpecial = kana.type === '特殊假名';
-        if (isSpecial) {
-            typeMatch = includeSpecial;
-        }
+    // 根据假名形式和种类筛选
+    if (includeSeion || includeDakuon || includeHandakuon || includeYouon) {
+        selectedKana.push(...allKana.filter(kana => {
+            const formMatch = (includeHiragana && kana.form === '平假名') ||
+                              (includeKatakana && kana.form === '片假名');
+            const typeMatch = (includeSeion && kana.type === '清音') ||
+                              (includeDakuon && kana.type === '浊音') ||
+                              (includeHandakuon && kana.type === '半浊音') ||
+                              (includeYouon && kana.group === '拗音');
+            return formMatch && typeMatch;
+        }));
+    }
 
-        // 如果不是拗音也不是特殊假名，则按照常规类型判断
-        if (!isYouon && !isSpecial) {
-            typeMatch = (includeSeion && kana.type === '清音') ||
-                        (includeDakuon && kana.type === '浊音') ||
-                        (includeHandakuon && kana.type === '半浊音');
-        }
+    // 单独处理特殊假名
+    if (includeSpecial) {
+        selectedKana.push(...allKana.filter(kana => {
+            return kana.type === '特殊假名';
+        }));
+    }
 
-        // 3. 整合所有条件
-        return formMatch && typeMatch;
-    });
+    // 确保没有重复的假名
+    filteredKanaList = [...new Set(selectedKana)];
 
     // 如果没有符合条件的假名，则默认包含所有假名
     if (filteredKanaList.length === 0) {
