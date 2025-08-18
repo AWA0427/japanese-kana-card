@@ -45,12 +45,13 @@ function applySettings() {
     const includeYouon = youonCheckbox.checked;
     const includeSpecial = specialCheckbox.checked;
 
-    // 创建一个包含所有筛选条件的空数组
-    let selectedKana = [];
+    // 筛选出所有符合条件的假名
+    filteredKanaList = allKana.filter(kana => {
+        // 假名形式筛选
+        const formMatch = (includeHiragana && kana.form === '平假名') || (includeKatakana && kana.form === '片假名');
+        if (!formMatch) return false;
 
-    // 筛选出所有符合“假名种类”条件的假名
-    const typeFiltered = allKana.filter(kana => {
-        // 检查假名种类是否被选中
+        // 假名种类筛选
         const typeMatch = (includeSeion && kana.type === '清音') ||
                           (includeDakuon && kana.type === '浊音') ||
                           (includeHandakuon && kana.type === '半浊音') ||
@@ -60,20 +61,11 @@ function applySettings() {
         return typeMatch;
     });
 
-    // 在上一步筛选出的结果中，再根据“假名形式”进行二次筛选
-    selectedKana = typeFiltered.filter(kana => {
-        const formMatch = (includeHiragana && kana.form === '平假名') ||
-                          (includeKatakana && kana.form === '片假名');
-        
-        return formMatch;
-    });
-
-    // 如果没有符合条件的假名，则默认包含所有假名
-    if (selectedKana.length === 0) {
-        selectedKana = allKana;
+    if (filteredKanaList.length === 0) {
+        // 如果没有符合条件的假名，则默认包含所有假名
+        filteredKanaList = allKana;
     }
 
-    filteredKanaList = selectedKana;
     selectRandomKana();
 }
 
