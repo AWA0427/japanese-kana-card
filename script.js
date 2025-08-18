@@ -64,7 +64,7 @@ function applySettings() {
             const typeMatch = (includeSeion && (kana.type === '清音' || kana.type === '拔音'))
                               (includeDakuon && kana.type === '浊音') ||
                               (includeHandakuon && kana.type === '半浊音') ||
-                              (includeYouon && kana.type === '拗音')
+                              (includeYouon && kana.type === '拗音') ||
                               (includeSpecial && kana.type === '特殊假名');
             return typeMatch;
         });
