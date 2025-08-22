@@ -8,7 +8,7 @@ const trainingView = document.getElementById('training-view');
 const allCardsView = document.getElementById('all-cards-view');
 const kanaDisplay = document.getElementById('kana-display');
 const romanjiInput = document.getElementById('romanji-input');
-const romanjiHint = document.getElementById('romanji-hint'); // 新增
+const romanjiHint = document.getElementById('romanji-hint');
 const feedbackDisplay = document.getElementById('feedback-display');
 const inputForm = document.getElementById('input-form');
 const kanaCard = document.getElementById('kana-card');
@@ -27,6 +27,8 @@ const handakuonCheckbox = document.getElementById('handakuon-checkbox');
 const youonCheckbox = document.getElementById('youon-checkbox');
 const specialCheckbox = document.getElementById('special-checkbox');
 const settingsApplyButton = document.getElementById('settings-apply-button');
+const themeColorSwatches = document.querySelectorAll('.color-swatch');
+const systemThemeCheckbox = document.getElementById('system-theme-checkbox');
 
 // --- 状态变量 ---
 let currentKana = null;
@@ -139,8 +141,34 @@ function switchView(viewId) {
     }
 }
 
+/**
+ * 切换主题颜色。
+ */
+function switchThemeColor(color) {
+    document.documentElement.style.setProperty('--mdc-theme-primary', color);
+    document.documentElement.style.setProperty('--kana-color', color);
+}
+
+/**
+ * 切换亮色/深色模式。
+ */
+function toggleDarkMode(isDark) {
+    if (isDark) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+
 // --- 事件监听器 ---
 
+// 修复返回按钮功能
+backButton.addEventListener('click', () => {
+    switchView('training-view');
+    selectRandomKana();
+});
+
+// 罗马音输入表单提交
 inputForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const userInput = romanjiInput.value.toLowerCase().trim();
@@ -173,11 +201,6 @@ showAllButton.addEventListener('click', () => {
     displayAllCards();
 });
 
-backButton.addEventListener('click', () => {
-    switchView('training-view');
-    selectRandomKana();
-});
-
 settingsApplyButton.addEventListener('click', () => {
     applySettings();
     settingsDialog.close();
@@ -192,7 +215,47 @@ romanjiInput.addEventListener('input', () => {
     }
 });
 
+// 主题颜色选择
+themeColorSwatches.forEach(swatch => {
+    swatch.addEventListener('click', () => {
+        const color = swatch.dataset.color;
+        switchThemeColor(color);
+        // 更新选中状态
+        themeColorSwatches.forEach(s => s.classList.remove('selected'));
+        swatch.classList.add('selected');
+    });
+});
+
+// 自动切换深色模式
+systemThemeCheckbox.addEventListener('change', () => {
+    if (systemThemeCheckbox.checked) {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        toggleDarkMode(isDark);
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+});
+
+// 监听系统主题变化
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (systemThemeCheckbox.checked) {
+        toggleDarkMode(e.matches);
+    }
+});
+
+// 页面加载时执行
 window.onload = () => {
     applySettings();
     switchView('training-view');
+
+    // 默认选中第一个颜色
+    themeColorSwatches[0].classList.add('selected');
+
+    // 检查系统深色模式设置
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDark) {
+        // 如果系统是深色模式，自动勾选并启用
+        systemThemeCheckbox.checked = true;
+        toggleDarkMode(true);
+    }
 };
