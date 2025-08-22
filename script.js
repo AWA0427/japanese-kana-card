@@ -17,7 +17,7 @@ const showAllButton = document.getElementById('show-all-button');
 const backButton = document.getElementById('back-button');
 const allCardsList = document.getElementById('all-cards-list');
 
-// 获取设置弹窗和相关复选框
+// 获取设置弹窗和相关复选框1
 const settingsDialog = new mdc.dialog.MDCDialog(document.getElementById('settings-dialog'));
 const hiraganaCheckbox = document.getElementById('hiragana-checkbox');
 const katakanaCheckbox = document.getElementById('katakana-checkbox');
