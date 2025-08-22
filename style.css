@@ -4,6 +4,7 @@
     --mdc-theme-background: #f0f2f5;
     --mdc-theme-surface: #ffffff;
     --mdc-theme-text-primary: rgba(0, 0, 0, 0.87);
+    --mdc-theme-on-primary: black;
     --kana-color: #008000;
 }
 
@@ -27,6 +28,7 @@ html, body {
         --mdc-theme-background: #121212;
         --mdc-theme-surface: #1E1E1E;
         --mdc-theme-text-primary: #FFFFFF;
+        --mdc-theme-on-primary: black;
         --kana-color: #8BC34A;
     }
 }
@@ -34,7 +36,10 @@ html, body {
 /* 顶部应用栏 */
 .mdc-top-app-bar {
     background-color: var(--mdc-theme-primary);
-    color: white;
+    color: var(--mdc-theme-on-primary);
+}
+.mdc-top-app-bar .mdc-icon-button {
+    color: var(--mdc-theme-on-primary);
 }
 
 /* 主内容区 */
@@ -218,7 +223,7 @@ html, body {
 }
 .pill-checkbox:checked + .pill-label {
     background-color: var(--mdc-theme-primary);
-    color: white;
+    color: var(--mdc-theme-on-primary);
 }
 body.dark-mode .pill-label {
     background-color: #333;
@@ -229,7 +234,8 @@ body.dark-mode .pill-checkbox:checked + .pill-label {
     color: black;
 }
 
-/* 主题颜色选择器1 */
+
+/* 主题颜色选择器 */
 .theme-color-options {
     display: flex;
     flex-wrap: wrap;
