@@ -161,7 +161,7 @@ function toggleDarkMode(isDark) {
 
 // --- 事件监听器 ---
 
-// 修复返回按钮功能
+// 所有假名界面返回按钮
 backButton.addEventListener('click', () => {
     switchView('training-view');
     selectRandomKana();
@@ -250,8 +250,8 @@ window.onload = () => {
     applySettings();
     switchView('training-view');
 
-    // 默认选中第一个颜色并应用
-    const initialColorSwatch = document.querySelector('[data-color="#FFEFB1C9"]');
+    // 默认选中并应用初始颜色
+    const initialColorSwatch = document.querySelector('[data-color="#EFB1C9"]');
     if (initialColorSwatch) {
         initialColorSwatch.classList.add('selected');
         switchThemeColor(initialColorSwatch.dataset.color);
