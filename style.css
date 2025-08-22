@@ -20,7 +20,7 @@ html, body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* 深色模式主题w */
+/* 深色模式主题 */
 @media (prefers-color-scheme: dark) {
     body.dark-mode {
         --mdc-theme-primary: #BB86FC;
@@ -41,6 +41,9 @@ html, body {
 .mdc-top-app-bar .mdc-icon-button {
     color: var(--mdc-theme-on-primary);
 }
+.mdc-top-app-bar__title {
+    color: var(--mdc-theme-on-primary);
+}
 
 /* 主内容区 */
 .main-content-container {
@@ -50,6 +53,7 @@ html, body {
     align-items: center;
     justify-content: center;
     padding: 16px;
+    width: 100%;
 }
 
 /* 视图切换 */
@@ -58,7 +62,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 600px;
+    /* 移除 max-width: 600px; */
 }
 .view:not([style*="display: none"]) {
     display: flex;
@@ -71,6 +75,7 @@ html, body {
     align-items: center;
     gap: 20px;
     width: 100%;
+    max-width: 350px;
 }
 
 /* 假名卡片 */
@@ -140,19 +145,13 @@ html, body {
 }
 
 /* 所有假名视图 */
-.all-cards-header {
-    width: 100%;
-    max-width: 600px;
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
 .all-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 10px;
     width: 100%;
+    padding: 0 16px; /* 新增，确保内容不溢出 */
+    box-sizing: border-box; /* 确保 padding 不影响宽度 */
 }
 
 .all-card {
@@ -164,6 +163,7 @@ html, body {
     background-color: var(--mdc-theme-surface);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    aspect-ratio: 1;
 }
 .kana-char {
     font-size: 2rem;
@@ -233,7 +233,6 @@ body.dark-mode .pill-checkbox:checked + .pill-label {
     background-color: var(--mdc-theme-primary);
     color: black;
 }
-
 
 /* 主题颜色选择器 */
 .theme-color-options {
