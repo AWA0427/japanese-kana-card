@@ -14,10 +14,9 @@ const inputForm = document.getElementById('input-form');
 const kanaCard = document.getElementById('kana-card');
 const settingsButton = document.getElementById('settings-button');
 const showAllButton = document.getElementById('show-all-button');
-const backButton = document.getElementById('back-button');
 const allCardsList = document.getElementById('all-cards-list');
 
-// 获取设置弹窗和相关复选框1
+// 获取设置弹窗和相关复选框
 const settingsDialog = new mdc.dialog.MDCDialog(document.getElementById('settings-dialog'));
 const hiraganaCheckbox = document.getElementById('hiragana-checkbox');
 const katakanaCheckbox = document.getElementById('katakana-checkbox');
@@ -34,6 +33,7 @@ const systemThemeCheckbox = document.getElementById('system-theme-checkbox');
 let currentKana = null;
 let filteredKanaList = [];
 let unusedKanaList = [];
+let currentView = 'training-view';
 
 // --- 核心函数 ---
 
@@ -138,14 +138,29 @@ function switchView(viewId) {
     const targetView = document.getElementById(viewId);
     if (targetView) {
         targetView.style.display = 'flex';
+        currentView = viewId;
     }
+}
+
+/**
+ * 根据亮度计算对比色（白色或黑色）
+ */
+function getContrastColor(hexColor) {
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? 'black' : 'white';
 }
 
 /**
  * 切换主题颜色。
  */
 function switchThemeColor(color) {
-    document.documentElement.style.setProperty('--mdc-theme-primary', color);
+    const newPrimaryColor = color.startsWith('#') ? color : `#${color}`;
+    document.documentElement.style.setProperty('--mdc-theme-primary', newPrimaryColor);
+    const onPrimaryColor = getContrastColor(newPrimaryColor);
+    document.documentElement.style.setProperty('--mdc-theme-on-primary', onPrimaryColor);
 }
 
 /**
@@ -161,10 +176,15 @@ function toggleDarkMode(isDark) {
 
 // --- 事件监听器 ---
 
-// 所有假名界面返回按钮
-backButton.addEventListener('click', () => {
-    switchView('training-view');
-    selectRandomKana();
+// “所有假名”按钮切换视图
+showAllButton.addEventListener('click', () => {
+    if (currentView === 'training-view') {
+        switchView('all-cards-view');
+        displayAllCards();
+    } else {
+        switchView('training-view');
+        selectRandomKana();
+    }
 });
 
 // 罗马音输入表单提交
@@ -195,10 +215,6 @@ settingsButton.addEventListener('click', () => {
     settingsDialog.open();
 });
 
-showAllButton.addEventListener('click', () => {
-    switchView('all-cards-view');
-    displayAllCards();
-});
 
 settingsApplyButton.addEventListener('click', () => {
     applySettings();
