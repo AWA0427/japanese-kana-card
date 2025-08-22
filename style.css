@@ -45,7 +45,7 @@ html, body {
     color: var(--mdc-theme-on-primary);
 }
 
-/* 主内容区 - 默认（移动端） */
+/* 主内容区 */
 .main-content-container {
     flex-grow: 1;
     display: flex;
@@ -63,23 +63,23 @@ html, body {
     align-items: center;
     width: 100%;
     max-width: 600px;
-    padding-bottom: 20px;
+    padding-bottom: 20px; /* 增加底部间距 */
 }
 .view:not([style*="display: none"]) {
     display: flex;
 }
 
-/* 训练卡片容器 - 默认（移动端）*/
+/* 卡片容器 */
 .card-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     width: 100%;
-    max-width: 350px;
+    max-width: 350px; /* 限制卡片和输入框的最大宽度 */
 }
 
-/* 假名卡片 - 默认（移动端）*/
+/* 假名卡片 */
 #kana-card {
     width: 100%;
     max-width: 300px;
@@ -105,7 +105,7 @@ html, body {
     }
 }
 
-/* 输入框表单 - 默认（移动端）*/
+/* 输入框表单 */
 #input-form {
     display: flex;
     flex-direction: column;
@@ -151,8 +151,8 @@ html, body {
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 10px;
     width: 100%;
-    padding: 0 16px;
-    box-sizing: border-box;
+    padding: 0 16px; /* 增加左右内边距 */
+    box-sizing: border-box; /* 确保内边距不影响宽度计算 */
 }
 
 .all-card {
@@ -164,7 +164,7 @@ html, body {
     background-color: var(--mdc-theme-surface);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    aspect-ratio: 1;
+    aspect-ratio: 1; /* 保持卡片为正方形 */
 }
 .kana-char {
     font-size: 2rem;
@@ -260,51 +260,4 @@ body.dark-mode .color-swatch:hover {
 }
 body.dark-mode .color-swatch.selected {
     border-color: var(--mdc-theme-primary);
-}
-
-/* PC 端适配 */
-@media (min-width: 768px) {
-    .main-content-container {
-        padding: 24px;
-        flex-direction: row;
-        gap: 48px;
-        align-items: flex-start;
-        justify-content: center;
-    }
-
-    /* 训练界面布局 */
-    #training-view {
-        flex-direction: row;
-        align-items: center;
-        gap: 48px;
-        max-width: none;
-    }
-    
-    .card-container {
-        max-width: 400px;
-        gap: 32px;
-    }
-    
-    #kana-card {
-        height: 400px;
-    }
-    #kana-card h1 {
-        font-size: 10rem;
-    }
-    
-    #input-form {
-        max-width: 400px;
-    }
-    
-    /* 所有假名界面布局 */
-    #all-cards-view {
-        max-width: 900px; /* 增加大屏幕下的最大宽度 */
-    }
-    .all-cards-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 12px;
-    }
-    .all-card .kana-char {
-        font-size: 2.5rem;
-    }
 }
