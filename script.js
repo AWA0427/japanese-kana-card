@@ -146,7 +146,6 @@ function switchView(viewId) {
  */
 function switchThemeColor(color) {
     document.documentElement.style.setProperty('--mdc-theme-primary', color);
-    document.documentElement.style.setProperty('--kana-color', color);
 }
 
 /**
@@ -223,6 +222,7 @@ themeColorSwatches.forEach(swatch => {
         // 更新选中状态
         themeColorSwatches.forEach(s => s.classList.remove('selected'));
         swatch.classList.add('selected');
+        systemThemeCheckbox.checked = false; // 用户手动选择颜色，取消勾选跟随系统
     });
 });
 
@@ -231,6 +231,8 @@ systemThemeCheckbox.addEventListener('change', () => {
     if (systemThemeCheckbox.checked) {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         toggleDarkMode(isDark);
+        // 取消所有颜色选择器的选中状态
+        themeColorSwatches.forEach(s => s.classList.remove('selected'));
     } else {
         document.body.classList.remove('dark-mode');
     }
@@ -248,8 +250,12 @@ window.onload = () => {
     applySettings();
     switchView('training-view');
 
-    // 默认选中第一个颜色
-    themeColorSwatches[0].classList.add('selected');
+    // 默认选中第一个颜色并应用
+    const initialColorSwatch = document.querySelector('[data-color="#FFEFB1C9"]');
+    if (initialColorSwatch) {
+        initialColorSwatch.classList.add('selected');
+        switchThemeColor(initialColorSwatch.dataset.color);
+    }
 
     // 检查系统深色模式设置
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
