@@ -1,10 +1,10 @@
 :root {
-    --mdc-theme-primary: #3f51b5;
+    --mdc-theme-primary: #EFB1C9;
     --mdc-theme-secondary: #ff4081;
     --mdc-theme-background: #f0f2f5;
     --mdc-theme-surface: #ffffff;
     --mdc-theme-text-primary: rgba(0, 0, 0, 0.87);
-    --kana-color: green; /* 假名卡片字体颜色 */
+    --kana-color: green;
 }
 
 html, body {
@@ -16,6 +16,7 @@ html, body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* 深色模式主题 */
@@ -26,7 +27,7 @@ html, body {
         --mdc-theme-background: #121212;
         --mdc-theme-surface: #1E1E1E;
         --mdc-theme-text-primary: #FFFFFF;
-        --kana-color: #8BC34A; /* 深色模式下的绿色 */
+        --kana-color: #8BC34A;
     }
 }
 
@@ -81,7 +82,7 @@ html, body {
 #kana-card h1 {
     font-size: 8rem;
     margin: 0;
-    color: var(--kana-color); /* 使用变量 */
+    color: var(--kana-color);
     user-select: none;
 }
 @media (max-width: 450px) {
@@ -184,19 +185,55 @@ html, body {
 .settings-group label {
     font-weight: 500;
     margin-bottom: 8px;
+    display: block;
 }
 .mdc-dialog__title {
     color: var(--mdc-theme-primary);
 }
 
-/* 垂直排列的设置项 */
-.setting-item-row {
-    display: block;
+/* MD3 药丸按钮样式 */
+.pill-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
 }
+
+.pill-item {
+    display: inline-block;
+}
+
+.pill-checkbox {
+    display: none;
+}
+
+.pill-label {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #e0e0e0;
+    color: rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 14px;
+}
+.pill-checkbox:checked + .pill-label {
+    background-color: var(--mdc-theme-primary);
+    color: white;
+}
+body.dark-mode .pill-label {
+    background-color: #333;
+    color: #aaa;
+}
+body.dark-mode .pill-checkbox:checked + .pill-label {
+    background-color: var(--mdc-theme-primary);
+    color: black;
+}
+
 
 /* 主题颜色选择器 */
 .theme-color-options {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 15px;
 }
@@ -210,14 +247,12 @@ html, body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: border-color 0.2s ease;
 }
-.color-swatch:hover {
-    border-color: rgba(0, 0, 0, 0.4);
-}
 .color-swatch.selected {
     border-color: var(--mdc-theme-primary);
 }
-
-.green-theme { background-color: #00C853; }
-.blue-theme { background-color: #2196F3; }
-.red-theme { background-color: #F44336; }
-.purple-theme { background-color: #9C27B0; }
+body.dark-mode .color-swatch:hover {
+    border-color: #fff;
+}
+body.dark-mode .color-swatch.selected {
+    border-color: var(--mdc-theme-primary);
+}
