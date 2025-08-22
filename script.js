@@ -8,6 +8,7 @@ const trainingView = document.getElementById('training-view');
 const allCardsView = document.getElementById('all-cards-view');
 const kanaDisplay = document.getElementById('kana-display');
 const romanjiInput = document.getElementById('romanji-input');
+const romanjiHint = document.getElementById('romanji-hint'); // 新增
 const feedbackDisplay = document.getElementById('feedback-display');
 const inputForm = document.getElementById('input-form');
 const kanaCard = document.getElementById('kana-card');
@@ -30,7 +31,7 @@ const settingsApplyButton = document.getElementById('settings-apply-button');
 // --- 状态变量 ---
 let currentKana = null;
 let filteredKanaList = [];
-let unusedKanaList = []; // 新增：存放未被练习过的假名
+let unusedKanaList = [];
 
 // --- 核心函数 ---
 
@@ -180,6 +181,15 @@ backButton.addEventListener('click', () => {
 settingsApplyButton.addEventListener('click', () => {
     applySettings();
     settingsDialog.close();
+});
+
+// 监听罗马音输入框的输入事件，控制提示的显示/隐藏
+romanjiInput.addEventListener('input', () => {
+    if (romanjiInput.value.length > 0) {
+        romanjiHint.style.opacity = '0';
+    } else {
+        romanjiHint.style.opacity = '1';
+    }
 });
 
 window.onload = () => {
