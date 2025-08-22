@@ -6,6 +6,7 @@
     --mdc-theme-text-primary: rgba(0, 0, 0, 0.87);
     --mdc-theme-on-primary: black;
     --kana-color: #008000;
+    --top-app-bar-height: 64px; /* 定义应用栏高度 */
 }
 
 html, body {
@@ -37,11 +38,14 @@ html, body {
 .mdc-top-app-bar {
     background-color: var(--mdc-theme-primary);
     color: var(--mdc-theme-on-primary);
-}
-.mdc-top-app-bar .mdc-icon-button {
-    color: var(--mdc-theme-on-primary);
+    position: fixed;
+    width: 100%;
+    z-index: 100;
 }
 .mdc-top-app-bar__title {
+    color: var(--mdc-theme-on-primary);
+}
+.mdc-top-app-bar .mdc-icon-button {
     color: var(--mdc-theme-on-primary);
 }
 
@@ -53,10 +57,10 @@ html, body {
     align-items: center;
     /* 移除 justify-content: center; */
     padding: 16px;
+    padding-top: calc(var(--top-app-bar-height) + 16px); /* 为应用栏留出空间 */
     width: 100%;
-    /* 新增，确保内容在父容器中居中 */
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 768px; /* 增加最大宽度 */
+    margin: 0 auto; /* 居中 */
 }
 
 /* 视图切换 */
@@ -65,20 +69,19 @@ html, body {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    /* 移除 max-width: 600px; */
 }
 .view:not([style*="display: none"]) {
     display: flex;
 }
 
-/* 卡片容器 */
+/* 训练卡片容器 */
 .card-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     width: 100%;
-    max-width: 350px;
+    /* 移除 max-width: 350px; */
 }
 
 /* 假名卡片 */
@@ -114,7 +117,7 @@ html, body {
     align-items: center;
     gap: 16px;
     width: 100%;
-    max-width: 300px;
+    /* 移除 max-width: 300px; */
 }
 
 /* 输入框和提示 */
@@ -148,6 +151,10 @@ html, body {
 }
 
 /* 所有假名视图 */
+#all-cards-view {
+    padding-top: 16px; /* 为所有卡片视图增加顶部内边距 */
+}
+
 .all-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -155,7 +162,6 @@ html, body {
     width: 100%;
     padding: 0 16px;
     box-sizing: border-box;
-    padding-top: 20px; /* 新增，为顶部留出空间 */
 }
 
 .all-card {
