@@ -4,6 +4,7 @@
     --mdc-theme-background: #f0f2f5;
     --mdc-theme-surface: #ffffff;
     --mdc-theme-text-primary: rgba(0, 0, 0, 0.87);
+    --kana-color: green; /* 假名卡片字体颜色 */
 }
 
 html, body {
@@ -15,6 +16,18 @@ html, body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+/* 深色模式主题 */
+@media (prefers-color-scheme: dark) {
+    body.dark-mode {
+        --mdc-theme-primary: #BB86FC;
+        --mdc-theme-secondary: #03DAC6;
+        --mdc-theme-background: #121212;
+        --mdc-theme-surface: #1E1E1E;
+        --mdc-theme-text-primary: #FFFFFF;
+        --kana-color: #8BC34A; /* 深色模式下的绿色 */
+    }
 }
 
 /* 顶部应用栏 */
@@ -68,7 +81,7 @@ html, body {
 #kana-card h1 {
     font-size: 8rem;
     margin: 0;
-    color: var(--mdc-theme-primary);
+    color: var(--kana-color); /* 使用变量 */
     user-select: none;
 }
 @media (max-width: 450px) {
@@ -175,3 +188,36 @@ html, body {
 .mdc-dialog__title {
     color: var(--mdc-theme-primary);
 }
+
+/* 垂直排列的设置项 */
+.setting-item-row {
+    display: block;
+}
+
+/* 主题颜色选择器 */
+.theme-color-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.color-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    transition: border-color 0.2s ease;
+}
+.color-swatch:hover {
+    border-color: rgba(0, 0, 0, 0.4);
+}
+.color-swatch.selected {
+    border-color: var(--mdc-theme-primary);
+}
+
+.green-theme { background-color: #00C853; }
+.blue-theme { background-color: #2196F3; }
+.red-theme { background-color: #F44336; }
+.purple-theme { background-color: #9C27B0; }
