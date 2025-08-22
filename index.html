@@ -72,62 +72,93 @@
                 <div class="mdc-dialog__content" id="my-dialog-content">
                     <div class="settings-group">
                         <label>假名形式:</label>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="hiragana-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                        <div class="setting-item-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-checkbox">
+                                    <input type="checkbox" id="hiragana-checkbox" class="mdc-checkbox__native-control" checked>
+                                    <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                                </div>
+                                <label for="hiragana-checkbox">平假名</label>
                             </div>
-                            <label for="hiragana-checkbox">平假名</label>
                         </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="katakana-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                        <div class="setting-item-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-checkbox">
+                                    <input type="checkbox" id="katakana-checkbox" class="mdc-checkbox__native-control" checked>
+                                    <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                                </div>
+                                <label for="katakana-checkbox">片假名</label>
                             </div>
-                            <label for="katakana-checkbox">片假名</label>
                         </div>
                     </div>
 
                     <div class="settings-group">
                         <label>假名种类:</label>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="seion-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                        <div class="setting-item-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-checkbox">
+                                    <input type="checkbox" id="seion-checkbox" class="mdc-checkbox__native-control" checked>
+                                    <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                                </div>
+                                <label for="seion-checkbox">清音</label>
                             </div>
-                            <label for="seion-checkbox">清音</label>
                         </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="dakuon-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                        <div class="setting-item-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-checkbox">
+                                    <input type="checkbox" id="dakuon-checkbox" class="mdc-checkbox__native-control" checked>
+                                    <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                                </div>
+                                <label for="dakuon-checkbox">浊音</label>
                             </div>
-                            <label for="dakuon-checkbox">浊音</label>
                         </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="handakuon-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                        <div class="setting-item-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-checkbox">
+                                    <input type="checkbox" id="handakuon-checkbox" class="mdc-checkbox__native-control" checked>
+                                    <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                                </div>
+                                <label for="handakuon-checkbox">半浊音</label>
                             </div>
-                            <label for="handakuon-checkbox">半浊音</label>
                         </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="youon-checkbox" class="mdc-checkbox__native-control" checked>
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                        <div class="setting-item-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-checkbox">
+                                    <input type="checkbox" id="youon-checkbox" class="mdc-checkbox__native-control" checked>
+                                    <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                                </div>
+                                <label for="youon-checkbox">拗音</label>
                             </div>
-                            <label for="youon-checkbox">拗音</label>
                         </div>
                     </div>
 
                     <div class="settings-group">
                         <label>其他:</label>
+                        <div class="setting-item-row">
+                            <div class="mdc-form-field">
+                                <div class="mdc-checkbox">
+                                    <input type="checkbox" id="special-checkbox" class="mdc-checkbox__native-control" checked>
+                                    <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
+                                </div>
+                                <label for="special-checkbox">特殊假名</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <label>主题颜色:</label>
+                        <div class="theme-color-options">
+                            <button class="color-swatch green-theme" data-color="#00C853"></button>
+                            <button class="color-swatch blue-theme" data-color="#2196F3"></button>
+                            <button class="color-swatch red-theme" data-color="#F44336"></button>
+                            <button class="color-swatch purple-theme" data-color="#9C27B0"></button>
+                        </div>
                         <div class="mdc-form-field">
                             <div class="mdc-checkbox">
-                                <input type="checkbox" id="special-checkbox" class="mdc-checkbox__native-control" checked>
+                                <input type="checkbox" id="system-theme-checkbox" class="mdc-checkbox__native-control">
                                 <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
                             </div>
-                            <label for="special-checkbox">特殊假名</label>
+                            <label for="system-theme-checkbox">跟随系统深色模式</label>
                         </div>
                     </div>
                 </div>
