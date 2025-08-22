@@ -191,42 +191,46 @@ html, body {
     color: var(--mdc-theme-primary);
 }
 
-/* MD3 药丸按钮样式 */
+/* 药丸按钮样式 */
 .pill-options {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 15px;
 }
-
 .pill-item {
     display: inline-block;
 }
-
 .pill-checkbox {
     display: none;
 }
-
 .pill-label {
     padding: 8px 16px;
     border-radius: 20px;
-    background-color: #e0e0e0;
-    color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #ccc;
+    background-color: transparent;
+    color: var(--mdc-theme-text-primary);
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
     font-size: 14px;
+    user-select: none;
+    white-space: nowrap;
 }
 .pill-checkbox:checked + .pill-label {
     background-color: var(--mdc-theme-primary);
+    border-color: var(--mdc-theme-primary);
     color: white;
 }
+/* 深色模式下的药丸按钮样式 */
 body.dark-mode .pill-label {
-    background-color: #333;
-    color: #aaa;
+    background-color: transparent;
+    color: #fff;
+    border-color: #666;
 }
 body.dark-mode .pill-checkbox:checked + .pill-label {
     background-color: var(--mdc-theme-primary);
-    color: black;
+    border-color: var(--mdc-theme-primary);
+    color: #000;
 }
 
 
