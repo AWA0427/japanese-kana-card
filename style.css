@@ -229,7 +229,7 @@ body.dark-mode .pill-checkbox:checked + .pill-label {
     color: black;
 }
 
-/* 主题颜色选择器 */
+/* 主题颜色选择器1 */
 .theme-color-options {
     display: flex;
     flex-wrap: wrap;
