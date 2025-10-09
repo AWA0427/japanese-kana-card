@@ -73,8 +73,8 @@ const allKana = [
   { kana: 'ぞ', romanji: 'zo', type: '浊音', form: '平假名' },
 
   { kana: 'だ', romanji: 'da', type: '浊音', form: '平假名' },
-  { kana: 'ぢ', romanji: ['ji', 'zi'], type: '浊音', form: '平假名' },
-  { kana: 'づ', romanji: 'du', type: '浊音', form: '平假名' },
+  { kana: 'ぢ', romanji: ['ji', 'di'], type: '浊音', form: '平假名' },
+  { kana: 'づ', romanji: ['zu', 'du'], type: '浊音', form: '平假名' },
   { kana: 'で', romanji: 'de', type: '浊音', form: '平假名' },
   { kana: 'ど', romanji: 'do', type: '浊音', form: '平假名' },
 
@@ -210,8 +210,8 @@ const allKana = [
   { kana: 'ゾ', romanji: 'zo', type: '浊音', form: '片假名' },
 
   { kana: 'ダ', romanji: 'da', type: '浊音', form: '片假名' },
-  { kana: 'ヂ', romanji: ['ji', 'zi'], type: '浊音', form: '片假名' },
-  { kana: 'ヅ', romanji: 'zu', type: '浊音', form: '片假名' },
+  { kana: 'ヂ', romanji: ['ji', 'di'], type: '浊音', form: '片假名' },
+  { kana: 'ヅ', romanji: ['zu', 'du'], type: '浊音', form: '片假名' },
   { kana: 'デ', romanji: 'de', type: '浊音', form: '片假名' },
   { kana: 'ド', romanji: 'do', type: '浊音', form: '片假名' },
 
