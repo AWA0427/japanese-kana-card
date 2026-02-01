@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日语五十音训练</title>
-    <!-- 引入 Google Fonts 和 Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
-    <!-- 顶部应用栏 (颜色会随主题改变) -->
+    <!-- 顶部应用栏 -->
     <header class="md3-top-app-bar">
         <div class="app-bar-content">
             <span class="app-bar-title">日语五十音训练</span>
+            <!-- 修复：强制横向排列 -->
             <div class="app-bar-actions">
                 <button id="show-all-button" class="md3-icon-button material-symbols-rounded" aria-label="切换列表">view_cozy</button>
                 <button id="settings-button" class="md3-icon-button material-symbols-rounded" aria-label="设置">settings</button>
@@ -26,10 +26,9 @@
         
         <!-- 训练视图 -->
         <div id="training-view" class="view">
-            <!-- 布局容器 -->
             <div id="training-layout-container" class="training-layout layout-vertical">
                 
-                <!-- 核心卡片 (保持原样，但PC端会放大) -->
+                <!-- 卡片 -->
                 <div class="kana-card-wrapper">
                     <div id="kana-card" class="original-card">
                         <h1 id="kana-display">あ</h1>
@@ -45,8 +44,8 @@
                             <div class="md3-input-border"></div>
                         </div>
                         
-                        <!-- MD3 风格提交按钮 (PC端会放大) -->
-                        <button class="md3-button-filled" type="submit">
+                        <!-- 提交按钮：增加了 main-submit-btn 类 -->
+                        <button class="md3-button-filled main-submit-btn" type="submit">
                             <span class="material-symbols-rounded icon">check</span>
                             <span class="label">提交</span>
                         </button>
@@ -56,7 +55,7 @@
             </div>
         </div>
 
-        <!-- 列表视图 (保持原样) -->
+        <!-- 列表视图 -->
         <div id="all-cards-view" class="view hidden">
             <div id="all-cards-list" class="all-cards-grid"></div>
         </div>
@@ -103,12 +102,12 @@
                     <div class="theme-controls">
                         <div class="color-options">
                             <div class="color-dot selected" data-color="#6750A4" style="background: #6750A4;"></div>
-                            <div class="color-dot" data-color="#9C27B0" style="background: #9C27B0;"></div> <!-- Purple -->
-                            <div class="color-dot" data-color="#E91E63" style="background: #E91E63;"></div> <!-- Pink -->
-                            <div class="color-dot" data-color="#F44336" style="background: #F44336;"></div> <!-- Red -->
-                            <div class="color-dot" data-color="#FF9800" style="background: #FF9800;"></div> <!-- Orange -->
-                            <div class="color-dot" data-color="#009688" style="background: #009688;"></div> <!-- Teal -->
-                            <div class="color-dot" data-color="#2196F3" style="background: #2196F3;"></div> <!-- Blue -->
+                            <div class="color-dot" data-color="#9C27B0" style="background: #9C27B0;"></div>
+                            <div class="color-dot" data-color="#E91E63" style="background: #E91E63;"></div>
+                            <div class="color-dot" data-color="#F44336" style="background: #F44336;"></div>
+                            <div class="color-dot" data-color="#FF9800" style="background: #FF9800;"></div>
+                            <div class="color-dot" data-color="#009688" style="background: #009688;"></div>
+                            <div class="color-dot" data-color="#2196F3" style="background: #2196F3;"></div>
                         </div>
                         <div class="custom-color-wrapper">
                             <label for="custom-color-picker">自定义颜色:</label>
@@ -127,7 +126,8 @@
             </div>
 
             <div class="dialog-actions">
-                <button class="md3-button-filled large-action" id="apply-settings">完成</button>
+                <!-- 这里的按钮没有 main-submit-btn 类，所以不会被错误放大 -->
+                <button class="md3-button-filled" id="apply-settings">完成</button>
             </div>
         </div>
     </div>
