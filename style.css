@@ -91,22 +91,20 @@ body {
 
 .training-layout { display: flex; transition: all 0.3s ease; width: 100%; }
 
-/* 垂直布局 (手机默认) */
+/* 垂直布局 */
 .layout-vertical {
     flex-direction: column; align-items: center;
     gap: 32px; margin-top: 20px;
 }
 
-/* PC端水平布局核心调整 */
+/* PC端水平布局 */
 .layout-horizontal {
     flex-direction: row;
-    /* 靠下对齐的关键：align-items: flex-end */
-    align-items: flex-end; 
+    align-items: flex-end; /* 靠下对齐 */
     justify-content: center;
-    /* 减少左右间距，让输入区更靠近卡片 */
     gap: 48px; 
     height: 70vh;
-    padding-bottom: 40px; /* 稍微留点底，别贴底太死 */
+    padding-bottom: 40px; 
 }
 
 /* --- 卡片 --- */
@@ -144,24 +142,21 @@ body.dark-mode .original-card {
 
 #input-form { width: 100%; display: flex; flex-direction: column; gap: 24px; }
 
-/* 修改：去除灰色背景，纯透明 */
 .md3-input-field {
     position: relative; width: 100%; height: 56px;
-    background-color: transparent; /* 去除背景 */
-    /* border-radius: 4px 4px 0 0;  不再需要圆角 */
+    background-color: transparent; 
     display: flex; align-items: flex-end;
 }
 
 .md3-input-element {
     width: 100%; height: 100%; border: none;
     background: transparent;
-    padding: 10px 0 5px 0; /* 调整内边距，紧贴底部线条 */
+    padding: 10px 0 5px 0;
     font-size: 20px; color: var(--on-surface);
     outline: none; box-sizing: border-box;
     text-align: center; z-index: 2;
 }
 
-/* 底部线条 */
 .md3-input-border {
     position: absolute; bottom: 0; left: 0; right: 0;
     height: 1px; background-color: var(--on-surface-variant);
@@ -180,10 +175,17 @@ body.dark-mode .original-card {
     z-index: 1;
     opacity: 0.6;
 }
-/* 核心：只要有 has-value 类，就强制隐藏，不让它出来 */
+
+/* 
+   核心修改：
+   1. 当输入框被聚焦 (:focus) 时，隐藏提示词。
+   2. 当输入框有内容 (.has-value) 时，隐藏提示词。
+   这样只要光标在里面，提示词就不会出来。
+*/
+.md3-input-element:focus ~ .md3-input-placeholder,
 .md3-input-element.has-value ~ .md3-input-placeholder {
     opacity: 0 !important;
-    display: none; /* 双重保险 */
+    display: none;
 }
 
 /* --- 按钮 (通用) --- */
@@ -212,38 +214,28 @@ body.dark-mode .original-card {
 
 /* --- PC端 放大逻辑 (大于 800px) --- */
 @media (min-width: 800px) {
-    /* 卡片放大 */
     .original-card {
         width: 380px; height: 380px;
         border-radius: 24px;
     }
     #kana-display { font-size: 11rem; }
 
-    /* 
-       由于布局改为了 flex-end (靠下)，
-       我们在横向布局时，让输入容器稍微宽一点，
-       并且让内容靠左对齐 (align-items: flex-start)
-       使其视觉上靠近卡片
-    */
     .layout-horizontal .interaction-container {
-        max-width: 420px; /* 容器变宽 */
-        align-items: flex-start; /* 内容靠左 */
+        max-width: 420px; 
+        align-items: flex-start;
     }
 
-    /* 按钮样式微调 */
     .md3-button-filled.main-submit-btn {
         height: 54px;
         width: 100%; 
-        max-width: 420px; /* 限制最大宽度，与输入框一致 */
+        max-width: 420px;
         font-size: 18px;
         border-radius: 100px;
     }
     
-    /* 输入框文字放大 */
     .md3-input-field { height: 50px; }
-    .md3-input-element { font-size: 24px; text-align: left; padding-left: 16px; } /* PC端输入靠左更有感觉? 或者保持居中 */
     
-    /* 如果希望输入文字也靠左 (靠近卡片那一侧)，可以用下面这行 */
+    /* PC端横屏布局时，输入文字和提示词靠左对齐，视觉上更靠近卡片 */
     .layout-horizontal .md3-input-element { text-align: left; padding-left: 12px; }
     .layout-horizontal .md3-input-placeholder { text-align: left; padding-left: 12px; }
 }
