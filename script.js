@@ -12,12 +12,11 @@ const trainingLayoutContainer = document.getElementById('training-layout-contain
 
 // 导航
 const settingsButton = document.getElementById('settings-button');
-const showAllButton = document.getElementById('show-all-button'); // 现作为 Toggle 按钮
+const showAllButton = document.getElementById('show-all-button');
 const allCardsList = document.getElementById('all-cards-list');
 
 // 弹窗
 const settingsDialogOverlay = document.getElementById('settings-dialog-overlay');
-const settingsDialogContent = document.getElementById('settings-dialog-content');
 const settingsApplyBtn = document.getElementById('apply-settings');
 
 // 设置选项
@@ -30,9 +29,8 @@ const darkModeToggle = document.getElementById('dark-mode-toggle');
 let currentKana = null;
 let filteredKanaList = [];
 let unusedKanaList = [];
-let currentView = 'training'; // 'training' or 'list'
+let currentView = 'training';
 
-// 用户设置默认值
 let userSettings = {
     layout: 'vertical',
     forms: ['hiragana', 'katakana'],
@@ -41,14 +39,67 @@ let userSettings = {
     isDarkMode: false
 };
 
+// --- 工具：颜色处理 ---
+// 将 Hex 转换为 RGB 并计算浅色背景 (Container Color)
+function updateColorVariables(hex) {
+    const root = document.documentElement;
+    root.style.setProperty('--primary-source', hex);
+    
+    // 简单的变浅算法，模拟 Material Design 的 Tonal Palette 90
+    // 将 Hex 转 RGB
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 4) {
+        r = parseInt("0x" + hex[1] + hex[1]);
+        g = parseInt("0x" + hex[2] + hex[2]);
+        b = parseInt("0x" + hex[3] + hex[3]);
+    } else if (hex.length === 7) {
+        r = parseInt("0x" + hex[1] + hex[2]);
+        g = parseInt("0x" + hex[3] + hex[4]);
+        b = parseInt("0x" + hex[5] + hex[6]);
+    }
+
+    // 混合白色以生成 Container 颜色 (Light mode下)
+    // 混合 85% 的白色
+    const mixWhite = (val) => Math.round(val + (255 - val) * 0.85);
+    const rC = mixWhite(r);
+    const gC = mixWhite(g);
+    const bC = mixWhite(b);
+    
+    // 深色 Container (Dark mode下混合黑色)
+    const mixBlack = (val) => Math.round(val * 0.4);
+    const rCD = mixBlack(r);
+    const gCD = mixBlack(g);
+    const bCD = mixBlack(b);
+
+    const containerLight = `rgb(${rC}, ${gC}, ${bC})`;
+    const containerDark = `rgb(${rCD}, ${gCD}, ${bCD})`;
+    
+    // On-Primary-Container 通常是很深的主色
+    const rOn = Math.max(0, r - 100);
+    const gOn = Math.max(0, g - 100);
+    const bOn = Math.max(0, b - 100);
+    const onContainer = `rgb(${rOn}, ${gOn}, ${bOn})`;
+
+    // 根据当前模式设置变量
+    // 这里我们设置默认(light)，Dark mode 由 CSS 里的 body.dark-mode 覆盖，或者JS动态判断
+    // 为了简单，我们直接设置两个变量，CSS 中通过 body.dark-mode 选择使用
+    
+    // 我们直接修改全局的 container 变量，配合 body class
+    if (document.body.classList.contains('dark-mode')) {
+        root.style.setProperty('--primary-container', containerDark);
+    } else {
+        root.style.setProperty('--primary-container', containerLight);
+    }
+    root.style.setProperty('--on-primary-container', onContainer);
+}
+
 // --- 初始化 ---
 window.onload = () => {
-    // 可以在这里读取 localStorage (如果有)
     applyTheme(userSettings.themeColor);
     applyLayout(userSettings.layout);
     updateKanaList();
     
-    // 初始化输入框监听 (控制 placeholder)
+    // 监听输入，控制 Placeholder 隐藏
     romanjiInput.addEventListener('input', () => {
         if (romanjiInput.value.length > 0) {
             romanjiInput.classList.add('has-value');
@@ -63,13 +114,11 @@ window.onload = () => {
 // --- 核心逻辑 ---
 
 function updateKanaList() {
-    // 获取表单选中的值
     const activeForms = Array.from(document.querySelectorAll('#form-options .filter-chip.selected'))
                              .map(chip => chip.dataset.value);
     const activeTypes = Array.from(document.querySelectorAll('#type-options .filter-chip.selected'))
                              .map(chip => chip.dataset.value);
 
-    // 映射
     const typeMap = {
         'seion': ['清音', '拔音'],
         'dakuon': ['浊音'],
@@ -79,7 +128,6 @@ function updateKanaList() {
     };
     const formMap = { 'hiragana': '平假名', 'katakana': '片假名' };
 
-    // 过滤
     filteredKanaList = allKana.filter(k => {
         const formMatch = activeForms.some(f => k.form === formMap[f]);
         const typeMatch = activeTypes.some(t => typeMap[t].includes(k.type));
@@ -108,7 +156,7 @@ function nextKana() {
 
     kanaDisplay.textContent = currentKana.kana;
     romanjiInput.value = '';
-    romanjiInput.classList.remove('has-value'); // 恢复 placeholder 显示
+    romanjiInput.classList.remove('has-value'); // 显示 Placeholder
     feedbackDisplay.textContent = '';
     kanaCard.classList.remove('shake');
     romanjiInput.focus();
@@ -125,7 +173,6 @@ function checkAnswer() {
         feedbackDisplay.style.color = "var(--success)";
         setTimeout(nextKana, 400);
     } else {
-        // 修改错误提示文案
         feedbackDisplay.textContent = `错误：应为 ${answers.join(' / ')}`;
         feedbackDisplay.style.color = "var(--error)";
         kanaCard.classList.add('shake');
@@ -139,24 +186,23 @@ function switchView(viewName) {
     if (viewName === 'training') {
         trainingView.classList.remove('hidden');
         allCardsView.classList.add('hidden');
-        showAllButton.textContent = 'view_cozy'; // 图标变回列表
+        showAllButton.textContent = 'view_cozy';
         currentView = 'training';
         if (!currentKana) nextKana();
     } else if (viewName === 'list') {
         trainingView.classList.add('hidden');
         allCardsView.classList.remove('hidden');
-        showAllButton.textContent = 'arrow_back'; // 图标变成返回
+        showAllButton.textContent = 'arrow_back';
         renderAllCards();
         currentView = 'list';
     }
 }
 
-// 还原列表显示逻辑
 function renderAllCards() {
     allCardsList.innerHTML = '';
     allKana.forEach(kana => {
         const card = document.createElement('div');
-        card.className = 'all-card'; // 使用 CSS 中还原的样式
+        card.className = 'all-card';
         const romanjiText = Array.isArray(kana.romanji) ? kana.romanji.join(' / ') : kana.romanji;
         card.innerHTML = `<span class="kana-char">${kana.kana}</span><br><span class="romanji-char">${romanjiText}</span>`;
         allCardsList.appendChild(card);
@@ -167,7 +213,7 @@ function renderAllCards() {
 
 function applyTheme(colorHex) {
     userSettings.themeColor = colorHex;
-    document.documentElement.style.setProperty('--primary-source', colorHex);
+    updateColorVariables(colorHex); // 更新 CSS 变量，包括 Sidebar 背景
     
     themeDots.forEach(dot => {
         if (dot.dataset.color.toLowerCase() === colorHex.toLowerCase()) {
@@ -181,9 +227,7 @@ function applyTheme(colorHex) {
 
 function applyLayout(layoutType) {
     userSettings.layout = layoutType;
-    // 更新 DOM
     trainingLayoutContainer.className = `training-layout layout-${layoutType}`;
-    // 更新设置面板选中状态
     document.querySelectorAll('#layout-options .filter-chip').forEach(chip => {
         if (chip.dataset.value === layoutType) {
             chip.classList.add('selected');
@@ -200,6 +244,8 @@ function toggleDarkMode(isDark) {
     } else {
         document.body.classList.remove('dark-mode');
     }
+    // 重新计算 Container 颜色 (因为深浅模式 Container 亮度不同)
+    applyTheme(userSettings.themeColor);
 }
 
 // --- 事件监听 ---
@@ -209,7 +255,6 @@ inputForm.addEventListener('submit', (e) => {
     checkAnswer();
 });
 
-// 列表按钮 Toggle 逻辑
 showAllButton.addEventListener('click', () => {
     if (currentView === 'training') {
         switchView('list');
@@ -218,12 +263,10 @@ showAllButton.addEventListener('click', () => {
     }
 });
 
-// 设置弹窗逻辑
 settingsButton.addEventListener('click', () => {
     settingsDialogOverlay.classList.remove('hidden');
 });
 
-// 点击遮罩层关闭弹窗
 settingsDialogOverlay.addEventListener('click', (e) => {
     if (e.target === settingsDialogOverlay) {
         settingsDialogOverlay.classList.add('hidden');
@@ -231,29 +274,20 @@ settingsDialogOverlay.addEventListener('click', (e) => {
 });
 
 settingsApplyBtn.addEventListener('click', () => {
-    // 1. 应用深色模式
     toggleDarkMode(darkModeToggle.checked);
-    
-    // 2. 应用布局
     const layoutChip = document.querySelector('#layout-options .filter-chip.selected');
     if (layoutChip) applyLayout(layoutChip.dataset.value);
-
-    // 3. 更新假名列表
     updateKanaList();
-    
     settingsDialogOverlay.classList.add('hidden');
 });
 
-// 设置面板内的 Chip 点击 (包括布局 Chip)
 chips.forEach(chip => {
-    chip.addEventListener('click', (e) => {
+    chip.addEventListener('click', () => {
         const parent = chip.parentElement;
-        // 如果是布局选项，实现单选逻辑
         if (parent.id === 'layout-options') {
             parent.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('selected'));
             chip.classList.add('selected');
         } else {
-            // 其他选项保持多选
             chip.classList.toggle('selected');
         }
     });
