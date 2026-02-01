@@ -4,21 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日语五十音训练</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- 引入 Google Fonts 和 Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link href="https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
-    <!-- 顶部应用栏 -->
+    <!-- 顶部应用栏 (颜色会随主题改变) -->
     <header class="md3-top-app-bar">
         <div class="app-bar-content">
             <span class="app-bar-title">日语五十音训练</span>
             <div class="app-bar-actions">
-                <!-- ID 保持不变，但逻辑改为 Toggle -->
-                <button id="show-all-button" class="md3-icon-button material-symbols-rounded" aria-label="切换列表/训练">view_cozy</button>
+                <button id="show-all-button" class="md3-icon-button material-symbols-rounded" aria-label="切换列表">view_cozy</button>
                 <button id="settings-button" class="md3-icon-button material-symbols-rounded" aria-label="设置">settings</button>
             </div>
         </div>
@@ -28,37 +26,37 @@
         
         <!-- 训练视图 -->
         <div id="training-view" class="view">
-            <!-- 布局容器：类名将由 JS 动态控制 (layout-vertical / layout-horizontal) -->
+            <!-- 布局容器 -->
             <div id="training-layout-container" class="training-layout layout-vertical">
-                <!-- 还原的大卡片 -->
+                
+                <!-- 核心卡片 (保持原样，但PC端会放大) -->
                 <div class="kana-card-wrapper">
-                    <div id="kana-card" class="original-card mdc-elevation--z4">
-                        <h1 id="kana-display"></h1>
+                    <div id="kana-card" class="original-card">
+                        <h1 id="kana-display">あ</h1>
                     </div>
                 </div>
 
                 <!-- 交互区 -->
                 <div class="interaction-container">
                     <form id="input-form">
-                        <div class="custom-input-group">
-                            <!-- 这里的提示词会根据 JS 逻辑隐藏 -->
-                            <span id="input-placeholder" class="input-placeholder">输入罗马音 (Romanji)</span>
-                            <input type="text" id="romanji-input" class="custom-input" autocomplete="off">
-                            <div class="input-underline"></div>
+                        <div class="md3-input-field">
+                            <input type="text" id="romanji-input" class="md3-input-element" autocomplete="off">
+                            <span id="input-placeholder" class="md3-input-placeholder">输入罗马音</span>
+                            <div class="md3-input-border"></div>
                         </div>
                         
+                        <!-- MD3 风格提交按钮 (PC端会放大) -->
                         <button class="md3-button-filled" type="submit">
                             <span class="material-symbols-rounded icon">check</span>
-                            提交
+                            <span class="label">提交</span>
                         </button>
-                        <!-- 删除了跳过按钮 -->
                     </form>
                     <div id="feedback-display" class="feedback-text"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 列表视图 (删除了内部的返回按钮) -->
+        <!-- 列表视图 (保持原样) -->
         <div id="all-cards-view" class="view hidden">
             <div id="all-cards-list" class="all-cards-grid"></div>
         </div>
@@ -73,7 +71,6 @@
             </div>
             
             <div class="dialog-content">
-                
                 <section class="settings-section">
                     <div class="section-title">布局方向 (PC端)</div>
                     <div class="chip-set" id="layout-options">
@@ -106,17 +103,18 @@
                     <div class="theme-controls">
                         <div class="color-options">
                             <div class="color-dot selected" data-color="#6750A4" style="background: #6750A4;"></div>
-                            <div class="color-dot" data-color="#E91E63" style="background: #E91E63;"></div>
-                            <div class="color-dot" data-color="#009688" style="background: #009688;"></div>
-                            <div class="color-dot" data-color="#FF9800" style="background: #FF9800;"></div>
-                            <div class="color-dot" data-color="#607D8B" style="background: #607D8B;"></div>
+                            <div class="color-dot" data-color="#9C27B0" style="background: #9C27B0;"></div> <!-- Purple -->
+                            <div class="color-dot" data-color="#E91E63" style="background: #E91E63;"></div> <!-- Pink -->
+                            <div class="color-dot" data-color="#F44336" style="background: #F44336;"></div> <!-- Red -->
+                            <div class="color-dot" data-color="#FF9800" style="background: #FF9800;"></div> <!-- Orange -->
+                            <div class="color-dot" data-color="#009688" style="background: #009688;"></div> <!-- Teal -->
+                            <div class="color-dot" data-color="#2196F3" style="background: #2196F3;"></div> <!-- Blue -->
                         </div>
                         <div class="custom-color-wrapper">
                             <label for="custom-color-picker">自定义颜色:</label>
                             <input type="color" id="custom-color-picker" value="#6750A4">
                         </div>
                         
-                        <!-- 这里的文字改为“深色模式”，去掉了跟随系统逻辑 -->
                         <div class="switch-row">
                             <label class="md3-switch">
                                 <input type="checkbox" id="dark-mode-toggle">
@@ -129,12 +127,11 @@
             </div>
 
             <div class="dialog-actions">
-                <button class="md3-button-filled" id="apply-settings">完成</button>
+                <button class="md3-button-filled large-action" id="apply-settings">完成</button>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.js"></script>
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
