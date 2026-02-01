@@ -1,307 +1,477 @@
 :root {
-    --mdc-theme-primary: #EFB1C9;
-    --mdc-theme-secondary: #ff4081;
-    --mdc-theme-background: #f0f2f5;
-    --mdc-theme-surface: #ffffff;
-    --mdc-theme-text-primary: rgba(0, 0, 0, 0.87);
-    --mdc-theme-on-primary: black;
-    --kana-color: #008000;
-    --top-app-bar-height: 64px; /* 顶部应用栏高度 */
+    /* 核心色板 (默认紫色系) */
+    --primary-source: #6750A4;
+    --primary: var(--primary-source);
+    --on-primary: #FFFFFF;
+    --primary-container: #EADDFF;
+    --on-primary-container: #21005D;
+    
+    /* 系统颜色 (Light Mode) */
+    --surface: #FDF8FD;
+    --surface-container: #F3EDF7; 
+    --surface-container-high: #ECE6F0;
+    --on-surface: #1C1B1F;
+    --on-surface-variant: #49454F;
+    --outline: #79747E;
+    --outline-variant: #CAC4D0;
+    
+    /* 状态颜色 */
+    --error: #B3261E;
+    --success: #2E7D32;
+    
+    /* 布局变量 */
+    --app-bar-height: 64px;
+    --border-radius-lg: 24px;
+    --border-radius-pill: 50px;
 }
 
-/* 核心布局和颜色设置 */
-html, body {
+/* 深色模式变量映射 */
+body.dark-mode {
+    --surface: #141218;
+    --surface-container: #1D1B20;
+    --surface-container-high: #2B2930;
+    --on-surface: #E6E1E5;
+    --on-surface-variant: #CAC4D0;
+    --outline: #938F99;
+    --outline-variant: #49454F;
+    
+    /* 在深色模式下，Primary 应该更柔和，但为了简化，我们保持色相，调整亮度
+       注意：真正的MD3需要动态生成HCT色板，这里做简单处理 */
+    --primary-container: var(--primary-source); /* 深色下容器变深 */
+    --on-primary-container: #FFFFFF;
+}
+
+body {
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--mdc-theme-background);
-    color: var(--mdc-theme-text-primary);
-    min-height: 100vh;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-family: 'Roboto', 'Noto Sans JP', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* 深色模式主题 */
-@media (prefers-color-scheme: dark) {
-    body.dark-mode {
-        --mdc-theme-primary: #BB86FC;
-        --mdc-theme-secondary: #03DAC6;
-        --mdc-theme-background: #121212;
-        --mdc-theme-surface: #1E1E1E;
-        --mdc-theme-text-primary: #FFFFFF;
-        --mdc-theme-on-primary: black;
-        --kana-color: #8BC34A;
-    }
-}
-
-/* 顶部应用栏 - 保持固定定位 */
-.mdc-top-app-bar {
-    background-color: var(--mdc-theme-primary);
-    color: var(--mdc-theme-on-primary);
+/* --- Top App Bar --- */
+.md3-top-app-bar {
+    height: var(--app-bar-height);
+    background-color: var(--surface-container);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    z-index: 100;
-}
-.mdc-top-app-bar__title {
-    color: var(--mdc-theme-on-primary);
-}
-.mdc-top-app-bar .mdc-icon-button {
-    color: var(--mdc-theme-on-primary);
+    right: 0;
+    z-index: 10;
 }
 
-/* 主内容区 - 为顶栏留出空间，并限制宽度 */
-.main-content-container {
-    flex-grow: 1;
+.app-bar-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    width: 100%;
-    max-width: 600px;
-    margin: var(--top-app-bar-height) auto 0; /* 使用 margin-top 为顶栏留出空间 */
-    padding: 16px;
-    box-sizing: border-box; /* 确保 padding 不影响宽度 */
 }
 
-/* 视图切换 */
+.app-bar-title {
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.md3-icon-button {
+    background: transparent;
+    border: none;
+    color: var(--on-surface-variant);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 24px;
+}
+
+.md3-icon-button:hover {
+    background-color: rgba(0,0,0,0.08);
+}
+
+/* --- Main Layout --- */
+.main-scaffold {
+    margin-top: var(--app-bar-height);
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+}
+
 .view {
-    display: none;
-    flex-direction: column;
-    align-items: center;
     width: 100%;
+    max-width: 1200px;
 }
-.view:not([style*="display: none"]) {
-    display: flex;
-}
+.hidden { display: none !important; }
 
-/* 训练卡片容器 */
-.card-container {
+/* PC端横屏布局核心优化 */
+.training-layout {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    width: 100%;
-    max-width: 350px;
+    gap: 32px;
+    height: 100%;
+    justify-content: center;
 }
 
-/* 假名卡片 */
-#kana-card {
+@media (min-width: 800px) {
+    .training-layout {
+        flex-direction: row;
+        align-items: stretch; /* 等高 */
+        height: 60vh; /* 限制高度使其居中 */
+        margin-top: 5vh;
+        gap: 64px;
+    }
+
+    .kana-card-container {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .interaction-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        max-width: 400px;
+    }
+}
+
+/* --- Kana Card --- */
+.md3-card-display {
+    background-color: var(--surface-container-high);
+    border-radius: 32px;
     width: 100%;
-    max-width: 300px;
-    height: 300px;
+    max-width: 320px;
+    aspect-ratio: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: var(--mdc-theme-surface);
-    border-radius: 8px;
-}
-#kana-card h1 {
-    font-size: 8rem;
-    margin: 0;
-    color: var(--kana-color);
-    user-select: none;
-}
-@media (max-width: 450px) {
-    #kana-card {
-        height: 250px;
-    }
-    #kana-card h1 {
-        font-size: 6rem;
-    }
+    position: relative;
+    /* MD3 elevation 1 */
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15); 
+    transition: transform 0.2s;
 }
 
-/* 输入框表单 */
+.kana-main {
+    font-size: 8rem;
+    font-weight: 500;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.kana-sub-info {
+    margin-top: 16px;
+    font-size: 1rem;
+    color: var(--on-surface-variant);
+    opacity: 0.8;
+}
+
+/* --- Input Area --- */
+.interaction-container {
+    width: 100%;
+    max-width: 320px;
+}
+
+.feedback-text {
+    height: 24px;
+    margin-bottom: 16px;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+}
+
 #input-form {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 16px;
     width: 100%;
-    max-width: 300px;
 }
 
-/* 输入框和提示 */
-.custom-input-container {
+/* MD3 Filled/Outlined Text Field mimic */
+.md3-text-field-container {
     position: relative;
-    width: 100%;
-}
-#romanji-hint {
-    position: absolute;
-    top: 50%;
-    left: 16px;
-    transform: translateY(-50%);
-    color: rgba(0, 0, 0, 0.6);
-    pointer-events: none;
-    transition: opacity 0.2s ease-in-out;
-}
-.mdc-text-field {
-    width: 100%;
-}
-
-/* 提交按钮 */
-.mdc-button {
-    width: 100%;
-}
-
-/* 反馈显示 */
-.feedback {
-    min-height: 24px;
-    font-weight: bold;
-    text-align: center;
-}
-
-/* 所有假名视图 - 修正顶部遮挡问题 */
-#all-cards-view {
-    /* 移除之前的 padding-top */
-}
-.all-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-    width: 100%;
-    padding: 0; /* 移除之前添加的 padding */
-}
-
-.all-card {
+    background-color: var(--surface-container-high);
+    border-radius: 4px 4px 0 0;
+    border-bottom: 1px solid var(--on-surface-variant);
+    height: 56px;
     display: flex;
-    flex-direction: column;
+    align-items: flex-end;
+}
+
+.md3-text-field-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    padding: 24px 16px 8px;
+    color: var(--on-surface);
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.md3-text-field-container:focus-within {
+    border-bottom: 2px solid var(--primary);
+    background-color: rgba(var(--primary), 0.08);
+}
+
+.md3-text-field-label {
+    position: absolute;
+    left: 16px;
+    top: 18px;
+    color: var(--on-surface-variant);
+    font-size: 16px;
+    transition: all 0.2s;
+    pointer-events: none;
+}
+
+.md3-text-field-input:focus + .md3-text-field-label,
+.md3-text-field-input:not(:placeholder-shown) + .md3-text-field-label {
+    top: 6px;
+    font-size: 12px;
+    color: var(--primary);
+}
+
+/* Buttons */
+.md3-button-filled {
+    background-color: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: 20px;
+    height: 40px;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
-    background-color: var(--mdc-theme-surface);
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    aspect-ratio: 1;
+    gap: 8px;
+    transition: box-shadow 0.2s;
 }
-.kana-char {
-    font-size: 2rem;
+
+.md3-button-filled:hover {
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    opacity: 0.9;
+}
+
+.md3-button-tonal {
+    background-color: var(--surface-container-high);
+    color: var(--on-surface-variant);
+    border: none;
+    border-radius: 20px;
+    height: 40px;
+    padding: 0 24px;
     font-weight: 500;
-}
-.romanji-char {
-    font-size: 0.8rem;
-    color: rgba(0, 0, 0, 0.54);
+    cursor: pointer;
 }
 
-/* 动画效果 */
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-}
-
-/* 设置弹窗样式 */
-.settings-group {
-    margin-bottom: 20px;
-}
-.settings-group label {
+.md3-button-text {
+    background: transparent;
+    color: var(--primary);
+    border: none;
+    border-radius: 20px;
+    height: 40px;
     font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
+    cursor: pointer;
 }
-.mdc-dialog__title {
-    color: var(--mdc-theme-primary);
+.md3-button-text:hover {
+    background-color: rgba(0,0,0,0.05);
 }
 
-/* MD3 药丸按钮样式 */
-.pill-options {
+/* --- Filter Chips (药丸) --- */
+.chip-set {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 15px;
 }
 
-.pill-item {
-    display: inline-block;
-}
-
-.pill-checkbox {
-    display: none;
-}
-
-.pill-label {
-    padding: 8px 16px;
-    border-radius: 20px;
-    background-color: #e0e0e0;
-    color: rgba(0, 0, 0, 0.6);
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+.filter-chip {
+    background-color: transparent;
+    border: 1px solid var(--outline);
+    color: var(--on-surface-variant);
+    border-radius: 8px;
+    padding: 6px 16px;
     font-size: 14px;
-}
-.pill-checkbox:checked + .pill-label {
-    background-color: var(--mdc-theme-primary);
-    color: var(--mdc-theme-on-primary);
-}
-body.dark-mode .pill-label {
-    background-color: #333;
-    color: #aaa;
-}
-body.dark-mode .pill-checkbox:checked + .pill-label {
-    background-color: var(--mdc-theme-primary);
-    color: black;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
 }
 
-/* 主题颜色选择器 */
-.theme-color-options {
+.filter-chip.selected {
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+    border-color: transparent;
+}
+.filter-chip.selected::before {
+    content: 'check';
+    font-family: 'Material Symbols Rounded';
+    font-size: 18px;
+    margin-right: 6px;
+}
+
+/* --- Settings Dialog --- */
+.md3-dialog-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.md3-dialog {
+    background-color: var(--surface-container);
+    border-radius: 28px;
+    width: 90%;
+    max-width: 400px;
+    padding: 24px;
+    box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: var(--on-surface);
+}
+.dialog-header h3 { margin: 0; font-size: 24px; }
+
+.dialog-content {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+.section-title {
+    font-size: 14px;
+    color: var(--primary);
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+/* Theme Colors */
+.color-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 12px;
+    margin-bottom: 12px;
 }
-
-.color-swatch {
-    width: 30px;
-    height: 30px;
+.color-dot {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    border: 2px solid transparent;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    transition: border-color 0.2s ease;
+    border: 2px solid transparent;
 }
-.color-swatch.selected {
-    border-color: var(--mdc-theme-primary);
-}
-body.dark-mode .color-swatch:hover {
-    border-color: #fff;
-}
-body.dark-mode .color-swatch.selected {
-    border-color: var(--mdc-theme-primary);
+.color-dot.selected {
+    border-color: var(--on-surface);
+    transform: scale(1.1);
 }
 
-/* PC 端布局（大于 768px） */
-@media (min-width: 768px) {
-    .main-content-container {
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: center;
-        max-width: 1200px;
-        gap: 60px;
-        margin: var(--top-app-bar-height) auto 0;
-    }
-
-    #training-view {
-        flex-direction: row;
-        align-items: flex-start;
-        max-width: none;
-        width: auto;
-    }
-
-    .card-container {
-        width: 300px;
-    }
-
-    #input-form {
-        width: 300px;
-    }
-
-    #all-cards-view {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        box-sizing: border-box;
-    }
+.custom-color-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
 }
+
+/* Switch */
+.switch-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    cursor: pointer;
+}
+.md3-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 32px;
+}
+.md3-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--outline);
+    border-radius: 34px;
+    transition: .4s;
+    border: 2px solid var(--outline);
+    box-sizing: border-box;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 6px;
+    bottom: 6px;
+    background-color: var(--on-surface-variant);
+    border-radius: 50%;
+    transition: .4s;
+}
+input:checked + .slider {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+input:checked + .slider:before {
+    transform: translateX(20px);
+    background-color: var(--on-primary);
+    width: 24px; height: 24px;
+    bottom: 2px; left: 2px;
+}
+
+/* All Cards Grid */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    padding-bottom: 24px;
+}
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Animation */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+    100% { transform: translateX(0); }
+}
+.shake { animation: shake 0.4s ease-in-out; }
