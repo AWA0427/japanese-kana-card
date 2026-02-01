@@ -4,146 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日语五十音训练</title>
+    <!-- Google Fonts & Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <!-- MDC CSS (用于基础组件功能) -->
     <link href="https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="mdc-top-app-bar">
-        <div class="mdc-top-app-bar__row">
-            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-                <span class="mdc-top-app-bar__title">日语五十音训练</span>
-            </section>
-            <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-                <button id="show-all-button" class="mdc-icon-button material-icons" aria-label="显示所有卡片">
-                    <div class="mdc-icon-button__ripple"></div>
-                    view_list
-                </button>
-                <button id="settings-button" class="mdc-icon-button material-icons" aria-label="设置">
-                    <div class="mdc-icon-button__ripple"></div>
-                    settings
-                </button>
-            </section>
+    
+    <!-- 顶部应用栏 -->
+    <header class="md3-top-app-bar">
+        <div class="app-bar-content">
+            <span class="app-bar-title">日语五十音训练</span>
+            <div class="app-bar-actions">
+                <button id="show-all-button" class="md3-icon-button material-symbols-rounded" aria-label="显示列表">view_cozy</button>
+                <button id="settings-button" class="md3-icon-button material-symbols-rounded" aria-label="设置">settings</button>
+            </div>
         </div>
     </header>
 
-    <div class="main-content-container">
+    <div class="main-scaffold">
+        
+        <!-- 训练视图 -->
         <div id="training-view" class="view">
-            <div class="card-container">
-                <div id="kana-card" class="mdc-card mdc-elevation--z4">
-                    <h1 id="kana-display"></h1>
-                </div>
-                <form id="input-form">
-                    <div class="mdc-text-field mdc-text-field--outlined custom-input-container">
-                        <span id="romanji-hint" class="input-hint">罗马音拼写</span>
-                        <input type="text" id="romanji-input" class="mdc-text-field__input">
-                        <div class="mdc-notched-outline">
-                            <div class="mdc-notched-outline__leading"></div>
-                            <div class="mdc-notched-outline__notch"></div>
-                            <div class="mdc-notched-outline__trailing"></div>
-                        </div>
+            <div class="training-layout">
+                <!-- 左侧：大卡片 -->
+                <div class="kana-card-container">
+                    <div id="kana-card" class="md3-card-display">
+                        <div class="kana-main" id="kana-display">あ</div>
+                        <div class="kana-sub-info" id="kana-type-hint">平假名 · 清音</div>
                     </div>
-                    <button class="mdc-button mdc-button--raised" type="submit">
-                        <span class="mdc-button__label">提交</span>
-                    </button>
-                </form>
-                <div id="feedback-display" class="feedback"></div>
+                </div>
+
+                <!-- 右侧：交互区 -->
+                <div class="interaction-container">
+                    <div id="feedback-display" class="feedback-text"></div>
+                    
+                    <form id="input-form">
+                        <div class="md3-text-field-container">
+                            <input type="text" id="romanji-input" class="md3-text-field-input" placeholder=" " autocomplete="off">
+                            <label class="md3-text-field-label">输入罗马音 (Romanji)</label>
+                        </div>
+                        <button class="md3-button-filled" type="submit">
+                            <span class="material-symbols-rounded icon">check</span>
+                            提交
+                        </button>
+                        <button class="md3-button-text" type="button" id="skip-button">
+                            跳过
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <div id="all-cards-view" class="view" style="display: none;">
-            <div id="all-cards-list" class="all-cards-grid">
-                </div>
+        <!-- 列表视图 -->
+        <div id="all-cards-view" class="view hidden">
+            <div class="list-header">
+                <h2>所有假名预览</h2>
+                <button class="md3-button-tonal" id="back-to-training">返回训练</button>
+            </div>
+            <div id="all-cards-list" class="cards-grid"></div>
         </div>
     </div>
 
-    <aside id="settings-dialog" class="mdc-dialog" role="alertdialog" aria-modal="true" aria-labelledby="my-dialog-title" aria-describedby="my-dialog-content">
-        <div class="mdc-dialog__container">
-            <div class="mdc-dialog__surface">
-                <h2 class="mdc-dialog__title" id="my-dialog-title">训练设置</h2>
-                <div class="mdc-dialog__content" id="my-dialog-content">
-                    <div class="settings-group">
-                        <label>假名形式:</label>
-                        <div class="pill-options">
-                            <div class="pill-item">
-                                <input type="checkbox" id="hiragana-checkbox" class="pill-checkbox" checked>
-                                <label for="hiragana-checkbox" class="pill-label">平假名</label>
-                            </div>
-                            <div class="pill-item">
-                                <input type="checkbox" id="katakana-checkbox" class="pill-checkbox" checked>
-                                <label for="katakana-checkbox" class="pill-label">片假名</label>
-                            </div>
-                        </div>
+    <!-- 设置弹窗 (MD3 Dialog) -->
+    <div id="settings-dialog-overlay" class="md3-dialog-overlay hidden">
+        <div class="md3-dialog">
+            <div class="dialog-header">
+                <span class="material-symbols-rounded">tune</span>
+                <h3>训练设置</h3>
+            </div>
+            
+            <div class="dialog-content">
+                
+                <section class="settings-section">
+                    <div class="section-title">假名模式</div>
+                    <div class="chip-set" id="form-options">
+                        <button class="filter-chip selected" data-value="hiragana">平假名</button>
+                        <button class="filter-chip selected" data-value="katakana">片假名</button>
                     </div>
+                </section>
 
-                    <div class="settings-group">
-                        <label>假名种类:</label>
-                        <div class="pill-options">
-                            <div class="pill-item">
-                                <input type="checkbox" id="seion-checkbox" class="pill-checkbox" checked>
-                                <label for="seion-checkbox" class="pill-label">清音</label>
-                            </div>
-                            <div class="pill-item">
-                                <input type="checkbox" id="dakuon-checkbox" class="pill-checkbox" checked>
-                                <label for="dakuon-checkbox" class="pill-label">浊音</label>
-                            </div>
-                            <div class="pill-item">
-                                <input type="checkbox" id="handakuon-checkbox" class="pill-checkbox" checked>
-                                <label for="handakuon-checkbox" class="pill-label">半浊音</label>
-                            </div>
-                            <div class="pill-item">
-                                <input type="checkbox" id="youon-checkbox" class="pill-checkbox" checked>
-                                <label for="youon-checkbox" class="pill-label">拗音</label>
-                            </div>
-                            <div class="pill-item">
-                                <input type="checkbox" id="special-checkbox" class="pill-checkbox" checked>
-                                <label for="special-checkbox" class="pill-label">特殊假名</label>
-                            </div>
-                        </div>
+                <section class="settings-section">
+                    <div class="section-title">假名种类 (自由组合)</div>
+                    <div class="chip-set" id="type-options">
+                        <button class="filter-chip selected" data-value="seion">清音</button>
+                        <button class="filter-chip selected" data-value="dakuon">浊音</button>
+                        <button class="filter-chip selected" data-value="handakuon">半浊音</button>
+                        <button class="filter-chip selected" data-value="youon">拗音</button>
+                        <button class="filter-chip selected" data-value="special">特殊</button>
                     </div>
+                </section>
 
-                    <div class="settings-group">
-                        <label>主题颜色:</label>
-                        <div class="theme-color-options">
-                            <button class="color-swatch" data-color="#D1EAC6" style="background-color: #D1EAC6;"></button>
-                            <button class="color-swatch" data-color="#BDECDE" style="background-color: #BDECDE;"></button>
-                            <button class="color-swatch" data-color="#EFB1C9" style="background-color: #EFB1C9;"></button>
-                            <button class="color-swatch" data-color="#BAEAF2" style="background-color: #BAEAF2;"></button>
-                            <button class="color-swatch" data-color="#C9E6FE" style="background-color: #C9E6FE;"></button>
-                            <button class="color-swatch" data-color="#DFE1FF" style="background-color: #DFE1FF;"></button>
-                            <button class="color-swatch" data-color="#E6DDFE" style="background-color: #E6DDFE;"></button>
-                            <button class="color-swatch" data-color="#F1DBFE" style="background-color: #F1DBFE;"></button>
-                            <button class="color-swatch" data-color="#FFDAD0" style="background-color: #FFDAD0;"></button>
-                            <button class="color-swatch" data-color="#FDDCB3" style="background-color: #FDDCB3;"></button>
-                            <button class="color-swatch" data-color="#EAE4B3" style="background-color: #EAE4B3;"></button>
+                <section class="settings-section">
+                    <div class="section-title">主题风格</div>
+                    <div class="theme-controls">
+                        <!-- 预设颜色 -->
+                        <div class="color-options">
+                            <div class="color-dot selected" data-color="#6750A4" style="background: #6750A4;"></div> <!-- M3 Purple -->
+                            <div class="color-dot" data-color="#9C27B0" style="background: #9C27B0;"></div>
+                            <div class="color-dot" data-color="#E91E63" style="background: #E91E63;"></div>
+                            <div class="color-dot" data-color="#F44336" style="background: #F44336;"></div>
+                            <div class="color-dot" data-color="#FF9800" style="background: #FF9800;"></div>
+                            <div class="color-dot" data-color="#009688" style="background: #009688;"></div>
+                            <div class="color-dot" data-color="#2196F3" style="background: #2196F3;"></div>
+                            <div class="color-dot" data-color="#3F51B5" style="background: #3F51B5;"></div>
+                            <div class="color-dot" data-color="#607D8B" style="background: #607D8B;"></div>
                         </div>
-                        <div class="mdc-form-field">
-                            <div class="mdc-checkbox">
-                                <input type="checkbox" id="system-theme-checkbox" class="mdc-checkbox__native-control">
-                                <div class="mdc-checkbox__background"><svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24"><path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"></path></svg><div class="mdc-checkbox__mixedmark"></div></div>
-                            </div>
-                            <label for="system-theme-checkbox">跟随系统深色模式</label>
+                        <!-- 自定义颜色选择器 -->
+                        <div class="custom-color-wrapper">
+                            <label for="custom-color-picker">自定义:</label>
+                            <input type="color" id="custom-color-picker" value="#6750A4">
+                        </div>
+                        
+                        <div class="switch-row">
+                            <label class="md3-switch">
+                                <input type="checkbox" id="system-dark-mode">
+                                <span class="slider"></span>
+                            </label>
+                            <span>跟随系统深色模式</span>
                         </div>
                     </div>
-                </div>
-                <div class="mdc-dialog__actions">
-                    <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
-                        <div class="mdc-button__ripple"></div>
-                        <span class="mdc-button__label">取消</span>
-                    </button>
-                    <button type="button" id="settings-apply-button" class="mdc-button mdc-dialog__button">
-                        <div class="mdc-button__ripple"></div>
-                        <span class="mdc-button__label">应用</span>
-                    </button>
-                </div>
+                </section>
+            </div>
+
+            <div class="dialog-actions">
+                <button class="md3-button-text" id="cancel-settings">取消</button>
+                <button class="md3-button-filled" id="apply-settings">应用更改</button>
             </div>
         </div>
-        <div class="mdc-dialog__scrim"></div>
-    </aside>
+    </div>
 
+    <!-- 脚本引用 -->
     <script src="https://unpkg.com/material-components-web@14.0.0/dist/material-components-web.min.js"></script>
-    <script src="data.js"></script>
+    <script src="data.js"></script> <!-- 你的 input_file_0.js 重命名为 data.js -->
     <script src="script.js"></script>
 </body>
 </html>
