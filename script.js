@@ -40,13 +40,11 @@ let userSettings = {
 };
 
 // --- 工具：颜色处理 ---
-// 将 Hex 转换为 RGB 并计算浅色背景 (Container Color)
 function updateColorVariables(hex) {
     const root = document.documentElement;
     root.style.setProperty('--primary-source', hex);
     
-    // 简单的变浅算法，模拟 Material Design 的 Tonal Palette 90
-    // 将 Hex 转 RGB
+    // 解析 HEX
     let r = 0, g = 0, b = 0;
     if (hex.length === 4) {
         r = parseInt("0x" + hex[1] + hex[1]);
@@ -58,39 +56,41 @@ function updateColorVariables(hex) {
         b = parseInt("0x" + hex[5] + hex[6]);
     }
 
-    // 混合白色以生成 Container 颜色 (Light mode下)
-    // 混合 85% 的白色
-    const mixWhite = (val) => Math.round(val + (255 - val) * 0.85);
-    const rC = mixWhite(r);
-    const gC = mixWhite(g);
-    const bC = mixWhite(b);
+    // 计算 Container 颜色
+    // 浅色模式：混合大量白色 (90%)
+    const mix = (c, w, p) => Math.round(c * (1 - p) + w * p);
+    const rL = mix(r, 255, 0.90);
+    const gL = mix(g, 255, 0.90);
+    const bL = mix(b, 255, 0.90);
+    const containerLight = `rgb(${rL}, ${gL}, ${bL})`;
     
-    // 深色 Container (Dark mode下混合黑色)
-    const mixBlack = (val) => Math.round(val * 0.4);
-    const rCD = mixBlack(r);
-    const gCD = mixBlack(g);
-    const bCD = mixBlack(b);
+    // 深色模式：混合一些灰色/黑色，或者是低饱和度的主色
+    // 简单做法：降低亮度，保持色相
+    const rD = mix(r, 0, 0.6); // 变暗
+    const gD = mix(g, 0, 0.6);
+    const bD = mix(b, 0, 0.6);
+    const containerDark = `rgb(${rD}, ${gD}, ${bD})`;
 
-    const containerLight = `rgb(${rC}, ${gC}, ${bC})`;
-    const containerDark = `rgb(${rCD}, ${gCD}, ${bCD})`;
-    
-    // On-Primary-Container 通常是很深的主色
-    const rOn = Math.max(0, r - 100);
-    const gOn = Math.max(0, g - 100);
-    const bOn = Math.max(0, b - 100);
-    const onContainer = `rgb(${rOn}, ${gOn}, ${bOn})`;
+    // On-Primary-Container (文字颜色)
+    // 浅色模式下是深色文字
+    const rOnL = mix(r, 0, 0.6); 
+    const gOnL = mix(g, 0, 0.6); 
+    const bOnL = mix(b, 0, 0.6); 
+    const onContainerLight = `rgb(${rOnL}, ${gOnL}, ${bOnL})`;
 
-    // 根据当前模式设置变量
-    // 这里我们设置默认(light)，Dark mode 由 CSS 里的 body.dark-mode 覆盖，或者JS动态判断
-    // 为了简单，我们直接设置两个变量，CSS 中通过 body.dark-mode 选择使用
-    
-    // 我们直接修改全局的 container 变量，配合 body class
-    if (document.body.classList.contains('dark-mode')) {
+    // 深色模式下是浅色文字
+    const onContainerDark = `rgb(${rL}, ${gL}, ${bL})`;
+
+    // 应用变量
+    // 我们同时定义 light 和 dark 的变量，由 body 类名决定使用的具体颜色
+    // 但为了确保 CSS 变量能被读取，我们直接根据当前状态设置 --primary-container
+    if (userSettings.isDarkMode) {
         root.style.setProperty('--primary-container', containerDark);
+        root.style.setProperty('--on-primary-container', onContainerDark);
     } else {
         root.style.setProperty('--primary-container', containerLight);
+        root.style.setProperty('--on-primary-container', onContainerLight);
     }
-    root.style.setProperty('--on-primary-container', onContainer);
 }
 
 // --- 初始化 ---
@@ -213,7 +213,7 @@ function renderAllCards() {
 
 function applyTheme(colorHex) {
     userSettings.themeColor = colorHex;
-    updateColorVariables(colorHex); // 更新 CSS 变量，包括 Sidebar 背景
+    updateColorVariables(colorHex); 
     
     themeDots.forEach(dot => {
         if (dot.dataset.color.toLowerCase() === colorHex.toLowerCase()) {
@@ -244,7 +244,7 @@ function toggleDarkMode(isDark) {
     } else {
         document.body.classList.remove('dark-mode');
     }
-    // 重新计算 Container 颜色 (因为深浅模式 Container 亮度不同)
+    // 重新计算颜色，因为深浅模式的 Container 计算方式不同
     applyTheme(userSettings.themeColor);
 }
 
