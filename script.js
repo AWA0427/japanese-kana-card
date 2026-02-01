@@ -56,7 +56,6 @@ function updateColorVariables(hex) {
         b = parseInt("0x" + hex[5] + hex[6]);
     }
 
-    // 颜色混合算法
     const mix = (c, w, p) => Math.round(c * (1 - p) + w * p);
     
     const rL = mix(r, 255, 0.90);
@@ -90,13 +89,11 @@ window.onload = () => {
     applyLayout(userSettings.layout);
     updateKanaList();
     
-    // 监听输入，控制 Placeholder 隐藏
+    // 监听输入，控制 Placeholder 隐藏（作为辅助，主要靠 CSS :focus）
     romanjiInput.addEventListener('input', () => {
         if (romanjiInput.value.length > 0) {
             romanjiInput.classList.add('has-value');
         } else {
-            // 只有当完全清空且不是在提交后自动清空的情况下，才可能需要显示
-            // 但根据你的需求，这里其实主要是为了“开始输入时隐藏”
             romanjiInput.classList.remove('has-value');
         }
     });
@@ -149,13 +146,15 @@ function nextKana() {
 
     kanaDisplay.textContent = currentKana.kana;
     
-    // 重置输入框
+    // 关键修复：先聚焦，确立 :focus 状态
+    romanjiInput.focus();
+    
+    // 再清空内容，此时 :focus 生效，placeholder 保持隐藏
     romanjiInput.value = '';
-    romanjiInput.classList.remove('has-value'); // 这里移除，显示 Placeholder (恢复到“输入罗马音”状态)
+    romanjiInput.classList.remove('has-value');
     
     feedbackDisplay.textContent = '';
     kanaCard.classList.remove('shake');
-    romanjiInput.focus();
 }
 
 function checkAnswer() {
@@ -167,9 +166,6 @@ function checkAnswer() {
     if (answers.includes(input)) {
         feedbackDisplay.textContent = "正确！";
         feedbackDisplay.style.color = "var(--success)";
-        
-        // 关键：答对后，输入框虽然有值，但我们马上要切下一张
-        // 保持 has-value 状态直到切下一张，这样 placeholder 不会闪现
         setTimeout(nextKana, 400);
     } else {
         feedbackDisplay.textContent = `错误：应为 ${answers.join(' / ')}`;
