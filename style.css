@@ -28,7 +28,6 @@ body.dark-mode {
     --outline: #938F99;
     --kana-text-color: #A5D6A7;
     
-    /* 深色模式下默认容器色，JS会动态覆盖这个值 */
     --primary-container: #4F378B;
     --on-primary-container: #EADDFF;
 }
@@ -51,7 +50,7 @@ body {
 /* --- 顶部应用栏 --- */
 .md3-top-app-bar {
     height: var(--app-bar-height);
-    background-color: var(--primary-container); /* 确保跟随自定义颜色 */
+    background-color: var(--primary-container);
     color: var(--on-surface);
     display: flex; align-items: center;
     padding: 0 16px;
@@ -66,12 +65,8 @@ body {
 
 .app-bar-title { font-size: 22px; font-weight: 500; color: var(--on-surface); }
 
-/* 修复：强制横向排列，不换行，不重叠 */
 .app-bar-actions {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    flex-wrap: nowrap;
+    display: flex; flex-direction: row; gap: 8px; flex-wrap: nowrap;
 }
 
 .md3-icon-button {
@@ -96,16 +91,25 @@ body {
 
 .training-layout { display: flex; transition: all 0.3s ease; width: 100%; }
 
+/* 垂直布局 (手机默认) */
 .layout-vertical {
     flex-direction: column; align-items: center;
     gap: 32px; margin-top: 20px;
 }
+
+/* PC端水平布局核心调整 */
 .layout-horizontal {
-    flex-direction: row; align-items: center; justify-content: center;
-    gap: 80px; height: 70vh;
+    flex-direction: row;
+    /* 靠下对齐的关键：align-items: flex-end */
+    align-items: flex-end; 
+    justify-content: center;
+    /* 减少左右间距，让输入区更靠近卡片 */
+    gap: 48px; 
+    height: 70vh;
+    padding-bottom: 40px; /* 稍微留点底，别贴底太死 */
 }
 
-/* --- 卡片 (白色方块) --- */
+/* --- 卡片 --- */
 .kana-card-wrapper { display: flex; justify-content: center; }
 
 .original-card {
@@ -133,28 +137,31 @@ body.dark-mode .original-card {
 /* --- 输入区 --- */
 .interaction-container {
     width: 100%; max-width: 320px;
-    display: flex; flex-direction: column; align-items: center;
+    display: flex; flex-direction: column; 
+    align-items: center;
     transition: max-width 0.3s;
 }
 
 #input-form { width: 100%; display: flex; flex-direction: column; gap: 24px; }
 
+/* 修改：去除灰色背景，纯透明 */
 .md3-input-field {
     position: relative; width: 100%; height: 56px;
-    background-color: var(--surface-container);
-    border-radius: 4px 4px 0 0;
+    background-color: transparent; /* 去除背景 */
+    /* border-radius: 4px 4px 0 0;  不再需要圆角 */
     display: flex; align-items: flex-end;
 }
 
 .md3-input-element {
     width: 100%; height: 100%; border: none;
     background: transparent;
-    padding: 20px 16px 8px;
-    font-size: 18px; color: var(--on-surface);
+    padding: 10px 0 5px 0; /* 调整内边距，紧贴底部线条 */
+    font-size: 20px; color: var(--on-surface);
     outline: none; box-sizing: border-box;
     text-align: center; z-index: 2;
 }
 
+/* 底部线条 */
 .md3-input-border {
     position: absolute; bottom: 0; left: 0; right: 0;
     height: 1px; background-color: var(--on-surface-variant);
@@ -171,9 +178,12 @@ body.dark-mode .original-card {
     color: var(--on-surface-variant); font-size: 16px;
     pointer-events: none; transition: opacity 0.1s ease-out;
     z-index: 1;
+    opacity: 0.6;
 }
+/* 核心：只要有 has-value 类，就强制隐藏，不让它出来 */
 .md3-input-element.has-value ~ .md3-input-placeholder {
-    opacity: 0 !important; /* 强制隐藏 */
+    opacity: 0 !important;
+    display: none; /* 双重保险 */
 }
 
 /* --- 按钮 (通用) --- */
@@ -181,7 +191,7 @@ body.dark-mode .original-card {
     background-color: var(--primary);
     color: var(--on-primary);
     border: none; border-radius: 100px;
-    height: 48px; /* 默认高度 */
+    height: 48px;
     padding: 0 24px;
     font-size: 14px; font-weight: 500;
     cursor: pointer;
@@ -209,22 +219,33 @@ body.dark-mode .original-card {
     }
     #kana-display { font-size: 11rem; }
 
-    .interaction-container { max-width: 380px; }
+    /* 
+       由于布局改为了 flex-end (靠下)，
+       我们在横向布局时，让输入容器稍微宽一点，
+       并且让内容靠左对齐 (align-items: flex-start)
+       使其视觉上靠近卡片
+    */
+    .layout-horizontal .interaction-container {
+        max-width: 420px; /* 容器变宽 */
+        align-items: flex-start; /* 内容靠左 */
+    }
 
-    /* 专门只放大首页提交按钮 */
+    /* 按钮样式微调 */
     .md3-button-filled.main-submit-btn {
-        height: 54px; /* 稍微高一点，但不要太高(之前64px太高了) */
-        width: 100%;  /* 宽度撑满 */
-        font-size: 18px; /* 字体放大 */
+        height: 54px;
+        width: 100%; 
+        max-width: 420px; /* 限制最大宽度，与输入框一致 */
+        font-size: 18px;
         border-radius: 100px;
     }
-    .md3-button-filled.main-submit-btn .icon {
-        font-size: 24px;
-    }
     
-    /* 输入框稍微放大 */
-    .md3-input-field { height: 60px; }
-    .md3-input-element { font-size: 20px; }
+    /* 输入框文字放大 */
+    .md3-input-field { height: 50px; }
+    .md3-input-element { font-size: 24px; text-align: left; padding-left: 16px; } /* PC端输入靠左更有感觉? 或者保持居中 */
+    
+    /* 如果希望输入文字也靠左 (靠近卡片那一侧)，可以用下面这行 */
+    .layout-horizontal .md3-input-element { text-align: left; padding-left: 12px; }
+    .layout-horizontal .md3-input-placeholder { text-align: left; padding-left: 12px; }
 }
 
 /* --- 列表预览 --- */
@@ -270,17 +291,14 @@ body:not(.dark-mode) .all-card { background-color: #fff; }
     padding: 8px 16px; font-size: 14px; font-weight: 500;
     cursor: pointer; transition: all 0.2s;
 }
-/* 确保选中状态跟随主题变量 */
 .filter-chip.selected {
     background-color: var(--primary-container);
     color: var(--on-primary-container);
     border-color: transparent;
 }
-
 .color-options { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
 .color-dot { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
 .color-dot.selected { border-color: var(--on-surface); transform: scale(1.1); }
-
 .switch-row { display: flex; align-items: center; gap: 16px; margin-top: 24px; cursor: pointer; }
 .md3-switch { position: relative; width: 52px; height: 32px; }
 .md3-switch input { opacity: 0; width: 0; height: 0; }
