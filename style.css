@@ -1,8 +1,13 @@
 :root {
+    /* 核心变量，会被 JS 动态修改 */
     --primary-source: #6750A4;
     --primary: var(--primary-source);
     --on-primary: #FFFFFF;
-    --primary-container: #EADDFF;
+    
+    /* 动态生成的容器色，默认紫色系 */
+    --primary-container: #EADDFF; 
+    --on-primary-container: #21005D;
+
     --surface: #FDF8FD;
     --surface-container: #F3EDF7; 
     --on-surface: #1C1B1F;
@@ -13,7 +18,7 @@
     --success: #2E7D32;
     
     --app-bar-height: 64px;
-    --kana-text-color: #000000; /* 还原文字颜色 */
+    --kana-text-color: #008000; /* 默认绿色，还原原版 */
 }
 
 /* 深色模式 */
@@ -23,7 +28,10 @@ body.dark-mode {
     --on-surface: #E6E1E5;
     --on-surface-variant: #CAC4D0;
     --outline: #938F99;
-    --kana-text-color: #FFFFFF; /* 深色模式下文字变白 */
+    --kana-text-color: #A5D6A7; /* 深色模式下稍微亮一点的绿色 */
+    
+    /* 在深色模式下，Primary Container 应该变深，JS 会辅助处理，这里给个默认 */
+    --primary-container: #4F378B;
 }
 
 body {
@@ -38,56 +46,56 @@ body {
     flex-direction: column;
 }
 
-/* 滚动条颜色适配 */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-::-webkit-scrollbar-thumb {
-    background-color: var(--outline);
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background-color: var(--primary);
-}
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: var(--outline); border-radius: 4px; opacity: 0.5; }
 
-/* --- Top App Bar --- */
+/* --- Top App Bar (跟随主题色) --- */
 .md3-top-app-bar {
     height: var(--app-bar-height);
-    background-color: var(--surface-container);
+    background-color: var(--primary-container); /* 关键点：使用主题容器色 */
+    color: var(--on-surface);
     display: flex;
     align-items: center;
     padding: 0 16px;
     position: fixed;
     top: 0; left: 0; right: 0; z-index: 10;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* 极淡的阴影 */
+    transition: background-color 0.3s;
 }
 
 .app-bar-content {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.app-bar-title { font-size: 20px; font-weight: 500; }
+.app-bar-title {
+    font-size: 22px;
+    font-weight: 500; /* MD3 标题字重 */
+    color: var(--on-surface);
+}
 
 .md3-icon-button {
     background: transparent;
     border: none;
     color: var(--on-surface-variant);
-    padding: 8px;
+    padding: 12px; /* 更大的点击区域 */
     border-radius: 50%;
     cursor: pointer;
     font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
 }
 .md3-icon-button:hover { background-color: rgba(0,0,0,0.08); }
 
-/* --- Layout System --- */
+/* --- Layout --- */
 .main-scaffold {
     margin-top: var(--app-bar-height);
     flex: 1;
@@ -97,18 +105,16 @@ body {
     justify-content: center;
 }
 
-.view {
-    width: 100%;
-    max-width: 800px; /* 限制最大宽度 */
-}
+.view { width: 100%; max-width: 1000px; }
 .hidden { display: none !important; }
 
 .training-layout {
     display: flex;
     transition: all 0.3s ease;
+    width: 100%;
 }
 
-/* 垂直布局 (默认/手机/PC可选) */
+/* 垂直布局 */
 .layout-vertical {
     flex-direction: column;
     align-items: center;
@@ -116,167 +122,228 @@ body {
     margin-top: 20px;
 }
 
-/* 水平布局 (PC可选) */
+/* 水平布局 */
 .layout-horizontal {
     flex-direction: row;
-    align-items: center; /* 垂直居中对齐 */
+    align-items: center;
     justify-content: center;
-    gap: 64px;
-    height: 70vh; /* 利用高度居中 */
+    gap: 80px;
+    height: 70vh;
 }
 
-/* --- 还原的卡片样式 --- */
+/* --- 训练卡片 (保持原始样式，但支持放大) --- */
 .kana-card-wrapper {
     display: flex;
     justify-content: center;
 }
 
 .original-card {
-    background-color: var(--surface-container); /* 跟随主题，而不是纯白 */
+    background-color: #FFFFFF; /* 强制白色，保持原味 */
     width: 280px;
     height: 280px;
-    border-radius: 8px; /* 还原原来的小圆角 */
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 还原原来的阴影 */
+    /* 原始阴影 */
     box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 
                 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 
                 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+    transition: width 0.3s, height 0.3s; /* 平滑放大 */
+}
+
+/* 深色模式下，卡片背景稍微变灰一点点以免太刺眼，但保持“卡片感” */
+body.dark-mode .original-card {
+    background-color: #2D2D2D;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.4);
 }
 
 #kana-display {
     font-size: 8rem;
     margin: 0;
-    color: var(--kana-text-color); /* 原来的绿色换成适配深色的变量，或者你可以手动指定颜色 */
+    color: var(--kana-text-color);
     user-select: none;
-    font-weight: 400;
+    line-height: 1;
+    transition: font-size 0.3s;
 }
 
-/* 为了还原原来的绿色/特定色，可以在 light mode 下指定，或者使用 primary */
-/* 如果要完全还原 input_file_0.js 里的颜色(绿色)，可以这样： */
-:root { --kana-original-color: #008000; }
-body.dark-mode { --kana-original-color: #8BC34A; }
-#kana-display { color: var(--kana-original-color); }
-
-
-/* --- Input Area --- */
+/* --- 输入区域 (MD3 风格) --- */
 .interaction-container {
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: max-width 0.3s;
 }
 
 #input-form {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
-/* 自定义输入框 (替换 MD3 复杂结构，改用简约下划线风格) */
-.custom-input-group {
+/* 输入框容器 */
+.md3-input-field {
     position: relative;
     width: 100%;
-    padding-top: 20px;
+    height: 56px;
+    background-color: var(--surface-container);
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    align-items: flex-end;
 }
 
-.custom-input {
+.md3-input-element {
     width: 100%;
+    height: 100%;
     border: none;
-    border-bottom: 1px solid var(--outline);
     background: transparent;
+    padding: 20px 16px 8px; /* 为文字留出空间 */
     font-size: 18px;
-    padding: 8px 0;
     color: var(--on-surface);
     outline: none;
+    box-sizing: border-box;
     text-align: center;
-    transition: border-color 0.3s;
+    z-index: 2;
 }
 
-.custom-input:focus {
-    border-bottom: 2px solid var(--primary);
-}
-
-.input-placeholder {
+/* 底部边框动画 */
+.md3-input-border {
     position: absolute;
-    top: 28px;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background-color: var(--on-surface-variant);
+    transition: all 0.2s;
+}
+.md3-input-element:focus ~ .md3-input-border {
+    height: 2px;
+    background-color: var(--primary);
+}
+
+/* 提示文字 */
+.md3-input-placeholder {
+    position: absolute;
+    top: 50%;
     left: 0;
     width: 100%;
     text-align: center;
+    transform: translateY(-50%);
     color: var(--on-surface-variant);
-    opacity: 0.6;
+    font-size: 16px;
     pointer-events: none;
-    transition: opacity 0.2s;
+    transition: opacity 0.1s ease-out; /* 快速隐藏 */
+    z-index: 1;
 }
 
-/* 隐藏提示词 */
-.custom-input.has-value ~ .input-placeholder {
+/* 隐藏提示逻辑 (JS添加 has-value 类) */
+.md3-input-element.has-value ~ .md3-input-placeholder {
     opacity: 0;
 }
 
+/* --- 提交按钮 (MD3 风格) --- */
 .md3-button-filled {
     background-color: var(--primary);
     color: var(--on-primary);
     border: none;
-    border-radius: 4px; /* 稍微方一点，接近原来 */
-    height: 40px;
+    border-radius: 100px; /* Pill Shape */
+    height: 48px; /* 默认高度 */
     width: 100%;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,0.2), 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12);
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.12); /* 低海拔阴影 */
+}
+
+.md3-button-filled:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)); /* 变亮 */
 }
 .md3-button-filled:active {
-    box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
+    transform: scale(0.98);
 }
 
 .feedback-text {
-    margin-top: 16px;
+    margin-top: 20px;
     min-height: 24px;
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 16px;
     text-align: center;
 }
 
-/* --- List View (Grid Restoration) --- */
-.all-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
-    width: 100%;
+/* --- PC端 放大逻辑 (大于 800px) --- */
+@media (min-width: 800px) {
+    /* 放大卡片 */
+    .original-card {
+        width: 380px;
+        height: 380px;
+        border-radius: 24px; /* 更大的圆角 */
+    }
+    #kana-display {
+        font-size: 11rem; /* 更大的字体 */
+    }
+
+    /* 放大输入区容器宽度 */
+    .interaction-container {
+        max-width: 380px;
+    }
+
+    /* 放大按钮 */
+    .md3-button-filled {
+        height: 64px; /* 更高的按钮 */
+        font-size: 20px;
+        border-radius: 32px;
+    }
+    .md3-button-filled .icon {
+        font-size: 28px;
+    }
+    
+    /* 放大输入框 */
+    .md3-input-field {
+        height: 64px;
+    }
+    .md3-input-element {
+        font-size: 22px;
+    }
+    .md3-input-placeholder {
+        font-size: 18px;
+    }
 }
 
-/* 还原 all-card 样式 */
+/* --- List View (保持不变的网格和白卡片) --- */
+.all-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* 稍微宽一点 */
+    gap: 16px;
+    width: 100%;
+}
 .all-card {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 10px;
-    background-color: var(--surface-container); /* 适配深色 */
-    border-radius: 8px;
+    padding: 16px 8px;
+    background-color: var(--surface-container); /* 在深色模式下适配 */
+    border-radius: 12px;
+    /* 保持原版阴影感 */
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     aspect-ratio: 1;
-    color: var(--on-surface);
+    transition: transform 0.2s;
 }
-.kana-char {
-    font-size: 2rem;
-    font-weight: 500;
-    color: var(--on-surface);
-}
-.romanji-char {
-    font-size: 0.8rem;
-    color: var(--on-surface-variant);
-    margin-top: 4px;
-}
+.all-card:hover { transform: translateY(-2px); }
 
-/* --- Dialog --- */
+body:not(.dark-mode) .all-card { background-color: #fff; }
+
+.kana-char { font-size: 2rem; font-weight: 500; color: var(--on-surface); }
+.romanji-char { font-size: 0.9rem; color: var(--on-surface-variant); margin-top: 4px; }
+
+/* --- Settings Dialog (MD3) --- */
 .md3-dialog-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -285,87 +352,67 @@ body.dark-mode { --kana-original-color: #8BC34A; }
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
 }
-
 .md3-dialog {
     background-color: var(--surface-container);
-    border-radius: 28px;
+    border-radius: 28px; /* MD3 标准圆角 */
     width: 90%;
-    max-width: 400px;
+    max-width: 420px;
     padding: 24px;
-    box-shadow: 0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column;
     max-height: 85vh;
 }
-
-.dialog-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    color: var(--on-surface);
-}
-.dialog-header h3 { margin: 0; font-size: 22px; }
-
+.dialog-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; color: var(--on-surface); }
+.dialog-header h3 { margin: 0; font-size: 24px; font-weight: 400; }
 .dialog-content { overflow-y: auto; flex: 1; }
+.settings-section { margin-bottom: 32px; }
+.section-title { font-size: 14px; color: var(--primary); font-weight: 500; margin-bottom: 12px; letter-spacing: 0.5px; }
 
-.settings-section { margin-bottom: 24px; }
-.section-title {
-    font-size: 14px;
-    color: var(--primary);
-    font-weight: 500;
-    margin-bottom: 12px;
-}
-
+/* Chips */
 .chip-set { display: flex; flex-wrap: wrap; gap: 8px; }
 .filter-chip {
     background-color: transparent;
     border: 1px solid var(--outline);
     color: var(--on-surface-variant);
     border-radius: 8px;
-    padding: 6px 16px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
 }
 .filter-chip.selected {
-    background-color: var(--primary); /* 选中变成实心色 */
-    color: var(--on-primary);
-    border-color: var(--primary);
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+    border-color: transparent;
 }
+/* Dots & Switch */
+.color-options { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+.color-dot { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+.color-dot.selected { border-color: var(--on-surface); transform: scale(1.1); }
 
-/* Switch & Colors */
-.switch-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; cursor: pointer; }
+.switch-row { display: flex; align-items: center; gap: 16px; margin-top: 24px; cursor: pointer; }
 .md3-switch { position: relative; width: 52px; height: 32px; }
 .md3-switch input { opacity: 0; width: 0; height: 0; }
 .slider {
-    position: absolute; cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: var(--outline); border-radius: 34px; transition: .4s;
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--surface-container); border-radius: 34px; transition: .4s;
     border: 2px solid var(--outline); box-sizing: border-box;
 }
 .slider:before {
-    position: absolute; content: "";
-    height: 16px; width: 16px; left: 6px; bottom: 6px;
-    background-color: var(--on-surface-variant);
-    border-radius: 50%; transition: .4s;
+    position: absolute; content: ""; height: 16px; width: 16px; left: 6px; bottom: 6px;
+    background-color: var(--outline); border-radius: 50%; transition: .4s;
 }
 input:checked + .slider { background-color: var(--primary); border-color: var(--primary); }
 input:checked + .slider:before {
-    transform: translateX(20px);
-    background-color: var(--on-primary);
-    width: 24px; height: 24px; bottom: 2px; left: 2px;
+    transform: translateX(20px); background-color: var(--on-primary); width: 24px; height: 24px; bottom: 2px; left: 2px;
 }
 
-.color-options { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
-.color-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-.color-dot.selected { border-color: var(--on-surface); transform: scale(1.1); }
-.custom-color-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.dialog-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.large-action { width: auto; padding-left: 32px; padding-right: 32px; }
 
-.dialog-actions { display: flex; justify-content: flex-end; margin-top: 16px; }
-
-/* 动画 */
 @keyframes shake {
     0% { transform: translateX(0); }
     25% { transform: translateX(-8px); }
