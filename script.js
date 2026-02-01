@@ -56,34 +56,25 @@ function updateColorVariables(hex) {
         b = parseInt("0x" + hex[5] + hex[6]);
     }
 
-    // 计算 Container 颜色
-    // 浅色模式：混合大量白色 (90%)
+    // 颜色混合算法
     const mix = (c, w, p) => Math.round(c * (1 - p) + w * p);
+    
     const rL = mix(r, 255, 0.90);
     const gL = mix(g, 255, 0.90);
     const bL = mix(b, 255, 0.90);
     const containerLight = `rgb(${rL}, ${gL}, ${bL})`;
     
-    // 深色模式：混合一些灰色/黑色，或者是低饱和度的主色
-    // 简单做法：降低亮度，保持色相
-    const rD = mix(r, 0, 0.6); // 变暗
+    const rD = mix(r, 0, 0.6);
     const gD = mix(g, 0, 0.6);
     const bD = mix(b, 0, 0.6);
     const containerDark = `rgb(${rD}, ${gD}, ${bD})`;
 
-    // On-Primary-Container (文字颜色)
-    // 浅色模式下是深色文字
     const rOnL = mix(r, 0, 0.6); 
     const gOnL = mix(g, 0, 0.6); 
     const bOnL = mix(b, 0, 0.6); 
     const onContainerLight = `rgb(${rOnL}, ${gOnL}, ${bOnL})`;
-
-    // 深色模式下是浅色文字
     const onContainerDark = `rgb(${rL}, ${gL}, ${bL})`;
 
-    // 应用变量
-    // 我们同时定义 light 和 dark 的变量，由 body 类名决定使用的具体颜色
-    // 但为了确保 CSS 变量能被读取，我们直接根据当前状态设置 --primary-container
     if (userSettings.isDarkMode) {
         root.style.setProperty('--primary-container', containerDark);
         root.style.setProperty('--on-primary-container', onContainerDark);
@@ -104,6 +95,8 @@ window.onload = () => {
         if (romanjiInput.value.length > 0) {
             romanjiInput.classList.add('has-value');
         } else {
+            // 只有当完全清空且不是在提交后自动清空的情况下，才可能需要显示
+            // 但根据你的需求，这里其实主要是为了“开始输入时隐藏”
             romanjiInput.classList.remove('has-value');
         }
     });
@@ -155,8 +148,11 @@ function nextKana() {
     unusedKanaList.splice(randomIndex, 1);
 
     kanaDisplay.textContent = currentKana.kana;
+    
+    // 重置输入框
     romanjiInput.value = '';
-    romanjiInput.classList.remove('has-value'); // 显示 Placeholder
+    romanjiInput.classList.remove('has-value'); // 这里移除，显示 Placeholder (恢复到“输入罗马音”状态)
+    
     feedbackDisplay.textContent = '';
     kanaCard.classList.remove('shake');
     romanjiInput.focus();
@@ -171,6 +167,9 @@ function checkAnswer() {
     if (answers.includes(input)) {
         feedbackDisplay.textContent = "正确！";
         feedbackDisplay.style.color = "var(--success)";
+        
+        // 关键：答对后，输入框虽然有值，但我们马上要切下一张
+        // 保持 has-value 状态直到切下一张，这样 placeholder 不会闪现
         setTimeout(nextKana, 400);
     } else {
         feedbackDisplay.textContent = `错误：应为 ${answers.join(' / ')}`;
@@ -244,7 +243,6 @@ function toggleDarkMode(isDark) {
     } else {
         document.body.classList.remove('dark-mode');
     }
-    // 重新计算颜色，因为深浅模式的 Container 计算方式不同
     applyTheme(userSettings.themeColor);
 }
 
