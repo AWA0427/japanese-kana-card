@@ -1,283 +1,295 @@
 // script.js
 
-// 初始化MDC组件
-mdc.autoInit();
-
-// --- 获取DOM元素 ---
+// --- DOM 元素 ---
 const trainingView = document.getElementById('training-view');
 const allCardsView = document.getElementById('all-cards-view');
 const kanaDisplay = document.getElementById('kana-display');
+const kanaTypeHint = document.getElementById('kana-type-hint');
 const romanjiInput = document.getElementById('romanji-input');
-const romanjiHint = document.getElementById('romanji-hint');
 const feedbackDisplay = document.getElementById('feedback-display');
 const inputForm = document.getElementById('input-form');
 const kanaCard = document.getElementById('kana-card');
+const skipButton = document.getElementById('skip-button');
+
+// 导航与设置
 const settingsButton = document.getElementById('settings-button');
 const showAllButton = document.getElementById('show-all-button');
+const backToTrainingBtn = document.getElementById('back-to-training');
 const allCardsList = document.getElementById('all-cards-list');
 
-// 获取设置弹窗和相关复选框
-const settingsDialog = new mdc.dialog.MDCDialog(document.getElementById('settings-dialog'));
-const hiraganaCheckbox = document.getElementById('hiragana-checkbox');
-const katakanaCheckbox = document.getElementById('katakana-checkbox');
-const seionCheckbox = document.getElementById('seion-checkbox');
-const dakuonCheckbox = document.getElementById('dakuon-checkbox');
-const handakuonCheckbox = document.getElementById('handakuon-checkbox');
-const youonCheckbox = document.getElementById('youon-checkbox');
-const specialCheckbox = document.getElementById('special-checkbox');
-const settingsApplyButton = document.getElementById('settings-apply-button');
-const themeColorSwatches = document.querySelectorAll('.color-swatch');
-const systemThemeCheckbox = document.getElementById('system-theme-checkbox');
+// 弹窗
+const settingsDialogOverlay = document.getElementById('settings-dialog-overlay');
+const settingsApplyBtn = document.getElementById('apply-settings');
+const settingsCancelBtn = document.getElementById('cancel-settings');
+
+// 设置选项
+const chips = document.querySelectorAll('.filter-chip');
+const themeDots = document.querySelectorAll('.color-dot');
+const customColorPicker = document.getElementById('custom-color-picker');
+const systemDarkModeCheckbox = document.getElementById('system-dark-mode');
 
 // --- 状态变量 ---
 let currentKana = null;
 let filteredKanaList = [];
-let unusedKanaList = [];
-let currentView = 'training-view';
+let unusedKanaList = []; // 当前一轮未出现的
+let userSettings = {
+    forms: ['hiragana', 'katakana'],
+    types: ['seion', 'dakuon', 'handakuon', 'youon', 'special'],
+    themeColor: '#6750A4',
+    followSystemTheme: true
+};
 
-// --- 核心函数 ---
+// --- 初始化 ---
+window.onload = () => {
+    loadSettings(); // 如果有本地存储可以在这里加载
+    applyTheme(userSettings.themeColor);
+    checkSystemTheme();
+    updateKanaList();
+    
+    // 默认展示
+    switchView('training');
+};
 
-/**
- * 根据用户设置过滤假名列表，并初始化 unusedKanaList。
- */
-function applySettings() {
-    const includeHiragana = hiraganaCheckbox.checked;
-    const includeKatakana = katakanaCheckbox.checked;
-    const includeSeion = seionCheckbox.checked;
-    const includeDakuon = dakuonCheckbox.checked;
-    const includeHandakuon = handakuonCheckbox.checked;
-    const includeYouon = youonCheckbox.checked;
-    const includeSpecial = specialCheckbox.checked;
+// --- 核心逻辑 ---
 
-    let tempFilteredList = [];
+function updateKanaList() {
+    // 1. 获取选中的 Form (Hiragana/Katakana)
+    const activeForms = Array.from(document.querySelectorAll('#form-options .filter-chip.selected'))
+                             .map(chip => chip.dataset.value);
+    
+    // 2. 获取选中的 Types
+    const activeTypes = Array.from(document.querySelectorAll('#type-options .filter-chip.selected'))
+                             .map(chip => chip.dataset.value);
 
-    // 第一步：根据假名形式筛选 (平假名 或 片假名)
-    tempFilteredList = allKana.filter(kana => {
-        const formMatch = (includeHiragana && kana.form === '平假名') || (includeKatakana && kana.form === '片假名');
-        return formMatch;
+    // 映射中文类型到数据中的 type 字段
+    const typeMap = {
+        'seion': ['清音', '拔音'],
+        'dakuon': ['浊音'],
+        'handakuon': ['半浊音'],
+        'youon': ['拗音'],
+        'special': ['特殊假名']
+    };
+
+    // 3. 过滤数据
+    filteredKanaList = allKana.filter(k => {
+        // 检查形态 (平假名/片假名)
+        const formMap = { 'hiragana': '平假名', 'katakana': '片假名' };
+        const formMatch = activeForms.some(f => k.form === formMap[f]);
+        
+        // 检查类型
+        const typeMatch = activeTypes.some(t => typeMap[t].includes(k.type));
+
+        return formMatch && typeMatch;
     });
 
-    // 如果没有任何“假名种类”被选中，则默认包含所有假名种类。
-    const noTypeSelected = !includeSeion && !includeDakuon && !includeHandakuon && !includeYouon && !includeSpecial;
-
-    if (noTypeSelected) {
-        filteredKanaList = tempFilteredList;
-    } else {
-        // 第二步：在已筛选的列表中，根据假名种类进行二次筛选
-        filteredKanaList = tempFilteredList.filter(kana => {
-            const typeMatch = (includeSeion && (kana.type === '清音' || kana.type === '拔音')) ||
-                              (includeDakuon && kana.type === '浊音') ||
-                              (includeHandakuon && kana.type === '半浊音') ||
-                              (includeYouon && kana.type === '拗音') ||
-                              (includeSpecial && kana.type === '特殊假名');
-            return typeMatch;
-        });
-    }
-
-    // 如果最终列表为空，则回到默认状态（所有假名）
     if (filteredKanaList.length === 0) {
-        filteredKanaList = allKana;
+        // 防止空列表
+        alert("请至少选择一种假名类型！");
+        return; // 不更新
     }
 
-    // 将筛选后的假名列表复制到未使用列表中
+    // 重置未使用的列表
     unusedKanaList = [...filteredKanaList];
-
-    selectRandomKana();
+    nextKana();
 }
 
-/**
- * 从未使用列表中随机选择一个假名，并更新卡片显示。
- */
-function selectRandomKana() {
-    // 如果 unusedKanaList 为空，说明所有卡片都已出现过一遍，需要重置
+function nextKana() {
+    if (filteredKanaList.length === 0) return;
+
     if (unusedKanaList.length === 0) {
+        // 一轮结束，重新填充
         unusedKanaList = [...filteredKanaList];
     }
-    
-    if (unusedKanaList.length === 0) {
-        kanaDisplay.textContent = '请在设置中选择假名';
-        romanjiInput.disabled = true;
-        return;
-    }
-    
-    romanjiInput.disabled = false;
-    // 从 unusedKanaList 中随机选择一个索引
+
     const randomIndex = Math.floor(Math.random() * unusedKanaList.length);
-    // 从列表中取出假名
     currentKana = unusedKanaList[randomIndex];
-    // 从 unusedKanaList 中移除该假名，确保它在一个周期内不会重复出现
     unusedKanaList.splice(randomIndex, 1);
-    
+
+    // UI 更新
     kanaDisplay.textContent = currentKana.kana;
+    kanaTypeHint.textContent = `${currentKana.form} · ${currentKana.type}`;
     romanjiInput.value = '';
     feedbackDisplay.textContent = '';
-    kanaCard.style.animation = 'none';
+    kanaCard.classList.remove('shake');
     romanjiInput.focus();
 }
 
-/**
- * 动态生成并显示所有假名卡片。
- */
-function displayAllCards() {
+function checkAnswer() {
+    if (!currentKana) return;
+
+    const input = romanjiInput.value.trim().toLowerCase();
+    const answers = Array.isArray(currentKana.romanji) ? currentKana.romanji : [currentKana.romanji];
+
+    if (answers.includes(input)) {
+        // 正确
+        feedbackDisplay.textContent = "正确！";
+        feedbackDisplay.style.color = "var(--success)"; // 使用 CSS 变量
+        setTimeout(nextKana, 400);
+    } else {
+        // 错误
+        feedbackDisplay.textContent = `应该是: ${answers.join(' / ')}`;
+        feedbackDisplay.style.color = "var(--error)";
+        kanaCard.classList.add('shake');
+        setTimeout(() => kanaCard.classList.remove('shake'), 500);
+    }
+}
+
+// --- 视图管理 ---
+
+function switchView(viewName) {
+    if (viewName === 'training') {
+        trainingView.classList.remove('hidden');
+        allCardsView.classList.add('hidden');
+        if (!currentKana) nextKana();
+    } else if (viewName === 'list') {
+        trainingView.classList.add('hidden');
+        allCardsView.classList.remove('hidden');
+        renderAllCards();
+    }
+}
+
+function renderAllCards() {
     allCardsList.innerHTML = '';
-    allKana.forEach(kana => {
+    // 使用全部数据，或者 filteredKanaList (这里展示全部更有用)
+    allKana.forEach(k => {
         const card = document.createElement('div');
-        card.className = 'mdc-card all-card';
-        const romanjiText = Array.isArray(kana.romanji) ? kana.romanji.join(' / ') : kana.romanji;
-        card.innerHTML = `<span class="kana-char">${kana.kana}</span><br><span class="romanji-char">${romanjiText}</span>`;
+        card.className = 'md3-card-display';
+        card.style.width = 'auto'; // 覆盖默认固定宽
+        card.style.height = 'auto';
+        card.style.padding = '10px';
+        card.style.borderRadius = '16px';
+        
+        const romanji = Array.isArray(k.romanji) ? k.romanji[0] : k.romanji;
+        
+        card.innerHTML = `
+            <div style="font-size: 2rem; color: var(--primary);">${k.kana}</div>
+            <div style="font-size: 0.8rem; opacity: 0.6;">${romanji}</div>
+        `;
         allCardsList.appendChild(card);
     });
 }
 
-/**
- * 切换视图。
- */
-function switchView(viewId) {
-    trainingView.style.display = 'none';
-    allCardsView.style.display = 'none';
-    const targetView = document.getElementById(viewId);
-    if (targetView) {
-        targetView.style.display = 'flex';
-        currentView = viewId;
+// --- 主题与外观 ---
+
+function hexToRgb(hex) {
+    // 简单转换
+    let c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return [(c>>16)&255, (c>>8)&255, c&255];
+    }
+    return [0,0,0];
+}
+
+function applyTheme(colorHex) {
+    const root = document.documentElement;
+    userSettings.themeColor = colorHex;
+    
+    // 设置主色
+    root.style.setProperty('--primary-source', colorHex);
+    
+    // 简单的颜色计算 (模拟 Material Design 的 Tonal Palette)
+    // 实际项目中推荐使用 material-color-utilities 库，这里手动模拟
+    const [r, g, b] = hexToRgb(colorHex);
+    
+    // Container 通常是极浅的主色 (这里简单用透明度混合)
+    // 这种做法在浅色模式有效，深色模式我们依靠 CSS 变量重写
+    const containerColor = `rgba(${r}, ${g}, ${b}, 0.12)`; 
+    // 实际上我们在 CSS 变量里定义了 hex，这里我们直接改 CSS 变量
+    // 为了更好的兼容性，我们只更新 --primary 变量，让 CSS 处理其余的
+    
+    // 更新选中点的状态
+    themeDots.forEach(dot => {
+        if (dot.dataset.color.toLowerCase() === colorHex.toLowerCase()) {
+            dot.classList.add('selected');
+        } else {
+            dot.classList.remove('selected');
+        }
+    });
+    
+    // 同步到取色器
+    customColorPicker.value = colorHex;
+}
+
+function checkSystemTheme() {
+    if (systemDarkModeCheckbox.checked) {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.classList.toggle('dark-mode', isDark);
     }
 }
 
-/**
- * 根据亮度计算对比色（白色或黑色）
- */
-function getContrastColor(hexColor) {
-    const r = parseInt(hexColor.slice(1, 3), 16);
-    const g = parseInt(hexColor.slice(3, 5), 16);
-    const b = parseInt(hexColor.slice(5, 7), 16);
-    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-    return (yiq >= 128) ? 'black' : 'white';
-}
+// --- 事件监听 ---
 
-/**
- * 切换主题颜色。
- */
-function switchThemeColor(color) {
-    const newPrimaryColor = color.startsWith('#') ? color : `#${color}`;
-    document.documentElement.style.setProperty('--mdc-theme-primary', newPrimaryColor);
-    const onPrimaryColor = getContrastColor(newPrimaryColor);
-    document.documentElement.style.setProperty('--mdc-theme-on-primary', onPrimaryColor);
-}
-
-/**
- * 切换亮色/深色模式。
- */
-function toggleDarkMode(isDark) {
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
-}
-
-// --- 事件监听器 ---
-
-// “所有假名”按钮切换视图
-showAllButton.addEventListener('click', () => {
-    if (currentView === 'training-view') {
-        switchView('all-cards-view');
-        displayAllCards();
-    } else {
-        switchView('training-view');
-        selectRandomKana();
-    }
-});
-
-// 罗马音输入表单提交
+// 1. 输入处理
 inputForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const userInput = romanjiInput.value.toLowerCase().trim();
-
-    const isCorrect = Array.isArray(currentKana.romanji) ? currentKana.romanji.includes(userInput) : currentKana.romanji === userInput;
-    
-    if (isCorrect) {
-        feedbackDisplay.textContent = '正确！';
-        feedbackDisplay.style.color = 'green';
-        setTimeout(() => {
-            selectRandomKana();
-        }, 500);
-    } else {
-        const correctRomanji = Array.isArray(currentKana.romanji) ? currentKana.romanji.join(' / ') : currentKana.romanji;
-        feedbackDisplay.textContent = `错误！正确读音: ${correctRomanji}`;
-        feedbackDisplay.style.color = 'red';
-        kanaCard.style.animation = 'shake 0.3s';
-        if ('vibrate' in navigator) {
-            navigator.vibrate(200);
-        }
-    }
+    checkAnswer();
 });
 
-settingsButton.addEventListener('click', () => {
-    settingsDialog.open();
+skipButton.addEventListener('click', () => {
+    feedbackDisplay.textContent = `跳过: ${Array.isArray(currentKana.romanji) ? currentKana.romanji[0] : currentKana.romanji}`;
+    feedbackDisplay.style.color = "var(--outline)";
+    setTimeout(nextKana, 800);
 });
 
-
-settingsApplyButton.addEventListener('click', () => {
-    applySettings();
-    settingsDialog.close();
-});
-
-// 监听罗马音输入框的输入事件，控制提示的显示/隐藏
-romanjiInput.addEventListener('input', () => {
-    if (romanjiInput.value.length > 0) {
-        romanjiHint.style.opacity = '0';
-    } else {
-        romanjiHint.style.opacity = '1';
-    }
-});
-
-// 主题颜色选择
-themeColorSwatches.forEach(swatch => {
-    swatch.addEventListener('click', () => {
-        const color = swatch.dataset.color;
-        switchThemeColor(color);
-        // 更新选中状态
-        themeColorSwatches.forEach(s => s.classList.remove('selected'));
-        swatch.classList.add('selected');
-        systemThemeCheckbox.checked = false; // 用户手动选择颜色，取消勾选跟随系统
+// 2. 设置面板 Filter Chips 点击
+chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+        chip.classList.toggle('selected');
     });
 });
 
-// 自动切换深色模式
-systemThemeCheckbox.addEventListener('change', () => {
-    if (systemThemeCheckbox.checked) {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        toggleDarkMode(isDark);
-        // 取消所有颜色选择器的选中状态
-        themeColorSwatches.forEach(s => s.classList.remove('selected'));
+// 3. 颜色选择
+themeDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+        applyTheme(dot.dataset.color);
+        // 如果用户手动点了颜色，可以考虑取消“跟随系统”(虽然这里不冲突，因为系统只管明暗)
+    });
+});
+
+customColorPicker.addEventListener('input', (e) => {
+    applyTheme(e.target.value);
+    // 移除预设点的选中状态
+    themeDots.forEach(d => d.classList.remove('selected'));
+});
+
+// 4. 设置弹窗控制
+settingsButton.addEventListener('click', () => {
+    settingsDialogOverlay.classList.remove('hidden');
+    // 可以在这里重新从 userSettings 同步 UI 状态
+});
+
+settingsCancelBtn.addEventListener('click', () => {
+    settingsDialogOverlay.classList.add('hidden');
+    // 可以在这里回滚 UI 状态
+});
+
+settingsApplyBtn.addEventListener('click', () => {
+    // 1. 应用深色模式设置
+    if (systemDarkModeCheckbox.checked) {
+        checkSystemTheme();
     } else {
+        // 如果取消勾选，默认回浅色，或者需要记录用户手动设置的模式(这里简化为回浅色)
         document.body.classList.remove('dark-mode');
     }
+    
+    // 2. 更新列表
+    updateKanaList();
+    
+    settingsDialogOverlay.classList.add('hidden');
 });
 
-// 监听系统主题变化
+// 5. 视图切换
+showAllButton.addEventListener('click', () => switchView('list'));
+backToTrainingBtn.addEventListener('click', () => switchView('training'));
+
+// 6. 系统主题变更监听
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (systemThemeCheckbox.checked) {
-        toggleDarkMode(e.matches);
+    if (systemDarkModeCheckbox.checked) {
+        document.body.classList.toggle('dark-mode', e.matches);
     }
 });
-
-// 页面加载时执行
-window.onload = () => {
-    applySettings();
-    switchView('training-view');
-
-    // 默认选中并应用初始颜色
-    const initialColorSwatch = document.querySelector('[data-color="#EFB1C9"]');
-    if (initialColorSwatch) {
-        initialColorSwatch.classList.add('selected');
-        switchThemeColor(initialColorSwatch.dataset.color);
-    }
-
-    // 检查系统深色模式设置
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (isDark) {
-        // 如果系统是深色模式，自动勾选并启用
-        systemThemeCheckbox.checked = true;
-        toggleDarkMode(true);
-    }
-};
