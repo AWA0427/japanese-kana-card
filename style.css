@@ -3,7 +3,6 @@
     --primary: var(--primary-source);
     --on-primary: #FFFFFF;
     
-    /* 默认浅色容器 */
     --primary-container: #EADDFF; 
     --on-primary-container: #21005D;
 
@@ -42,7 +41,6 @@ body {
     display: flex; flex-direction: column;
 }
 
-/* 滚动条 */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background-color: var(--outline); border-radius: 4px; opacity: 0.5; }
@@ -91,16 +89,14 @@ body {
 
 .training-layout { display: flex; transition: all 0.3s ease; width: 100%; }
 
-/* 垂直布局 */
 .layout-vertical {
     flex-direction: column; align-items: center;
     gap: 32px; margin-top: 20px;
 }
 
-/* PC端水平布局 */
 .layout-horizontal {
     flex-direction: row;
-    align-items: flex-end; /* 靠下对齐 */
+    align-items: flex-end; 
     justify-content: center;
     gap: 48px; 
     height: 70vh;
@@ -177,15 +173,14 @@ body.dark-mode .original-card {
 }
 
 /* 
-   核心修改：
-   1. 当输入框被聚焦 (:focus) 时，隐藏提示词。
-   2. 当输入框有内容 (.has-value) 时，隐藏提示词。
-   这样只要光标在里面，提示词就不会出来。
+   核心修改：只要聚焦(:focus) 或者 有内容(.has-value)，提示词必须隐藏 
+   opacity: 0 !important; 确保看不见
+   visibility: hidden; 确保彻底消失不占交互（双重保险）
 */
 .md3-input-element:focus ~ .md3-input-placeholder,
 .md3-input-element.has-value ~ .md3-input-placeholder {
     opacity: 0 !important;
-    display: none;
+    visibility: hidden; 
 }
 
 /* --- 按钮 (通用) --- */
@@ -235,7 +230,6 @@ body.dark-mode .original-card {
     
     .md3-input-field { height: 50px; }
     
-    /* PC端横屏布局时，输入文字和提示词靠左对齐，视觉上更靠近卡片 */
     .layout-horizontal .md3-input-element { text-align: left; padding-left: 12px; }
     .layout-horizontal .md3-input-placeholder { text-align: left; padding-left: 12px; }
 }
