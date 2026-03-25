@@ -2,132 +2,78 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日语五十音训练</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <!-- 移动端核心适配：禁止缩放，适配屏幕 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>日语假名卡片</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-    <!-- 顶部应用栏 -->
-    <header class="md3-top-app-bar">
-        <div class="app-bar-content">
-            <span class="app-bar-title">日语五十音训练</span>
-            <!-- 修复：强制横向排列 -->
-            <div class="app-bar-actions">
-                <button id="show-all-button" class="md3-icon-button material-symbols-rounded" aria-label="切换列表">view_cozy</button>
-                <button id="settings-button" class="md3-icon-button material-symbols-rounded" aria-label="设置">settings</button>
-            </div>
-        </div>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <h1>日语假名学习卡片</h1>
+        <button id="settingsBtn" class="settings-btn">设置</button>
     </header>
 
-    <div class="main-scaffold">
-        
-        <!-- 训练视图 -->
-        <div id="training-view" class="view">
-            <div id="training-layout-container" class="training-layout layout-vertical">
-                
-                <!-- 卡片 -->
-                <div class="kana-card-wrapper">
-                    <div id="kana-card" class="original-card">
-                        <h1 id="kana-display">あ</h1>
-                    </div>
-                </div>
-
-                <!-- 交互区 -->
-                <div class="interaction-container">
-                    <form id="input-form">
-                        <div class="md3-input-field">
-                            <input type="text" id="romanji-input" class="md3-input-element" autocomplete="off">
-                            <span id="input-placeholder" class="md3-input-placeholder">输入罗马音</span>
-                            <div class="md3-input-border"></div>
-                        </div>
-                        
-                        <!-- 提交按钮：增加了 main-submit-btn 类 -->
-                        <button class="md3-button-filled main-submit-btn" type="submit">
-                            <span class="material-symbols-rounded icon">check</span>
-                            <span class="label">提交</span>
-                        </button>
-                    </form>
-                    <div id="feedback-display" class="feedback-text"></div>
-                </div>
-            </div>
+    <!-- 主内容区 -->
+    <main class="container">
+        <!-- 假名卡片 -->
+        <div id="kanaCard" class="card">
+            <div id="displayContent" class="card-content">点击开始</div>
         </div>
 
-        <!-- 列表视图 -->
-        <div id="all-cards-view" class="view hidden">
-            <div id="all-cards-list" class="all-cards-grid"></div>
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="answerInput" 
+                placeholder="请输入答案"
+                autocapitalize="off"
+                autocorrect="off"
+                inputmode="text"
+            >
+            <button id="submitBtn" class="submit-btn">提交</button>
         </div>
-    </div>
+
+        <!-- 反馈提示 -->
+        <div id="feedback" class="feedback"></div>
+    </main>
 
     <!-- 设置弹窗 -->
-    <div id="settings-dialog-overlay" class="md3-dialog-overlay hidden">
-        <div class="md3-dialog" id="settings-dialog-content">
-            <div class="dialog-header">
-                <span class="material-symbols-rounded">tune</span>
-                <h3>设置</h3>
-            </div>
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h2>学习设置</h2>
             
-            <div class="dialog-content">
-                <section class="settings-section">
-                    <div class="section-title">布局方向 (PC端)</div>
-                    <div class="chip-set" id="layout-options">
-                        <button class="filter-chip selected" data-value="vertical">垂直居中</button>
-                        <button class="filter-chip" data-value="horizontal">左右分栏</button>
-                    </div>
-                </section>
-
-                <section class="settings-section">
-                    <div class="section-title">假名模式</div>
-                    <div class="chip-set" id="form-options">
-                        <button class="filter-chip selected" data-value="hiragana">平假名</button>
-                        <button class="filter-chip selected" data-value="katakana">片假名</button>
-                    </div>
-                </section>
-
-                <section class="settings-section">
-                    <div class="section-title">假名种类</div>
-                    <div class="chip-set" id="type-options">
-                        <button class="filter-chip selected" data-value="seion">清音</button>
-                        <button class="filter-chip selected" data-value="dakuon">浊音</button>
-                        <button class="filter-chip selected" data-value="handakuon">半浊音</button>
-                        <button class="filter-chip selected" data-value="youon">拗音</button>
-                        <button class="filter-chip selected" data-value="special">特殊</button>
-                    </div>
-                </section>
-
-                <section class="settings-section">
-                    <div class="section-title">外观</div>
-                    <div class="theme-controls">
-                        <div class="color-options">
-                            <div class="color-dot selected" data-color="#6750A4" style="background: #6750A4;"></div>
-                            <div class="color-dot" data-color="#9C27B0" style="background: #9C27B0;"></div>
-                            <div class="color-dot" data-color="#E91E63" style="background: #E91E63;"></div>
-                            <div class="color-dot" data-color="#F44336" style="background: #F44336;"></div>
-                            <div class="color-dot" data-color="#FF9800" style="background: #FF9800;"></div>
-                            <div class="color-dot" data-color="#009688" style="background: #009688;"></div>
-                            <div class="color-dot" data-color="#2196F3" style="background: #2196F3;"></div>
-                        </div>
-                        <div class="custom-color-wrapper">
-                            <label for="custom-color-picker">自定义颜色:</label>
-                            <input type="color" id="custom-color-picker" value="#6750A4">
-                        </div>
-                        
-                        <div class="switch-row">
-                            <label class="md3-switch">
-                                <input type="checkbox" id="dark-mode-toggle">
-                                <span class="slider"></span>
-                            </label>
-                            <span>深色模式</span>
-                        </div>
-                    </div>
-                </section>
+            <!-- 假名类型 -->
+            <div class="setting-group">
+                <label>假名类型</label>
+                <div>
+                    <label><input type="radio" name="kanaType" value="hiragana" checked> 平假名</label>
+                    <label><input type="radio" name="kanaType" value="katakana"> 片假名</label>
+                </div>
             </div>
 
-            <div class="dialog-actions">
-                <!-- 这里的按钮没有 main-submit-btn 类，所以不会被错误放大 -->
-                <button class="md3-button-filled" id="apply-settings">完成</button>
+            <!-- 训练模式 -->
+            <div class="setting-group">
+                <label>训练模式</label>
+                <div>
+                    <label><input type="radio" name="trainingMode" value="forward" checked> 正向（看假名写罗马字）</label>
+                    <label><input type="radio" name="trainingMode" value="reverse"> 逆向（看罗马字写假名）</label>
+                </div>
+            </div>
+
+            <!-- 逆向模式假名类型（默认隐藏） -->
+            <div id="reverseKanaType" class="setting-group" style="display:none;">
+                <label>逆向模式练习类型</label>
+                <div>
+                    <label><input type="radio" name="reverseType" value="hiragana" checked> 平假名</label>
+                    <label><input type="radio" name="reverseType" value="katakana"> 片假名</label>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="applyBtn" class="apply-btn">完成</button>
+                <button id="closeBtn" class="close-btn">关闭</button>
             </div>
         </div>
     </div>
