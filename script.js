@@ -1,19 +1,6 @@
 // 全局变量
 let selectedKanaType = ''; // 记录用户选择的平/片假名
 let currentRomanji = '';
-// 罗马音-假名映射（仅用于验证，无任何自动转换逻辑）
-const kanaMap = {
-  hiragana: {
-    'a':'あ', 'i':'い', 'u':'う', 'e':'え', 'o':'お',
-    'ka':'か', 'ki':'き', 'ku':'く', 'ke':'け', 'ko':'こ',
-    'sa':'さ', 'shi':'し', 'su':'す', 'se':'せ', 'so':'そ'
-  },
-  katakana: {
-    'a':'ア', 'i':'イ', 'u':'ウ', 'e':'エ', 'o':'オ',
-    'ka':'カ', 'ki':'キ', 'ku':'ク', 'ke':'ケ', 'ko':'コ',
-    'sa':'サ', 'shi':'シ', 'su':'ス', 'se':'セ', 'so':'ソ'
-  }
-};
 
 // 页面初始化
 document.addEventListener('DOMContentLoaded', () => {
