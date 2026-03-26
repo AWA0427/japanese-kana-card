@@ -1,297 +1,146 @@
-// script.js
-
-// --- DOM 元素 ---
-const trainingView = document.getElementById('training-view');
-const allCardsView = document.getElementById('all-cards-view');
-const kanaDisplay = document.getElementById('kana-display');
-const romanjiInput = document.getElementById('romanji-input');
-const feedbackDisplay = document.getElementById('feedback-display');
-const inputForm = document.getElementById('input-form');
-const kanaCard = document.getElementById('kana-card');
-const trainingLayoutContainer = document.getElementById('training-layout-container');
-
-// 导航
-const settingsButton = document.getElementById('settings-button');
-const showAllButton = document.getElementById('show-all-button');
-const allCardsList = document.getElementById('all-cards-list');
-
-// 弹窗
-const settingsDialogOverlay = document.getElementById('settings-dialog-overlay');
-const settingsApplyBtn = document.getElementById('apply-settings');
-
-// 设置选项
-const chips = document.querySelectorAll('.filter-chip');
-const themeDots = document.querySelectorAll('.color-dot');
-const customColorPicker = document.getElementById('custom-color-picker');
-const darkModeToggle = document.getElementById('dark-mode-toggle');
-
-// --- 状态变量 ---
-let currentKana = null;
-let filteredKanaList = [];
-let unusedKanaList = [];
-let currentView = 'training';
-
-let userSettings = {
-    layout: 'vertical',
-    forms: ['hiragana', 'katakana'],
-    types: ['seion', 'dakuon', 'handakuon', 'youon', 'special'],
-    themeColor: '#6750A4',
-    isDarkMode: false
+// 全局变量
+let selectedKanaType = ''; // 记录用户选择的平/片假名
+let currentRomanji = '';
+// 罗马音-假名映射（仅用于验证，无任何自动转换逻辑）
+const kanaMap = {
+  hiragana: {
+    'a':'あ', 'i':'い', 'u':'う', 'e':'え', 'o':'お',
+    'ka':'か', 'ki':'き', 'ku':'く', 'ke':'け', 'ko':'こ',
+    'sa':'さ', 'shi':'し', 'su':'す', 'se':'せ', 'so':'そ'
+  },
+  katakana: {
+    'a':'ア', 'i':'イ', 'u':'ウ', 'e':'エ', 'o':'オ',
+    'ka':'カ', 'ki':'キ', 'ku':'ク', 'ke':'ケ', 'ko':'コ',
+    'sa':'サ', 'shi':'シ', 'su':'ス', 'se':'セ', 'so':'ソ'
+  }
 };
 
-// --- 工具：颜色处理 ---
-function updateColorVariables(hex) {
-    const root = document.documentElement;
-    root.style.setProperty('--primary-source', hex);
-    
-    // 解析 HEX
-    let r = 0, g = 0, b = 0;
-    if (hex.length === 4) {
-        r = parseInt("0x" + hex[1] + hex[1]);
-        g = parseInt("0x" + hex[2] + hex[2]);
-        b = parseInt("0x" + hex[3] + hex[3]);
-    } else if (hex.length === 7) {
-        r = parseInt("0x" + hex[1] + hex[2]);
-        g = parseInt("0x" + hex[3] + hex[4]);
-        b = parseInt("0x" + hex[5] + hex[6]);
+// 页面初始化
+document.addEventListener('DOMContentLoaded', () => {
+  // 元素获取
+  const modal = document.getElementById('kana-type-modal');
+  const hiraBtn = document.getElementById('hiragana-btn');
+  const kataBtn = document.getElementById('katakana-btn');
+  const kanaInput = document.getElementById('kana-input');
+  const submitBtn = document.getElementById('submit-btn');
+  const feedbackText = document.getElementById('feedback-text');
+  const themeSelect = document.getElementById('theme');
+  const fontSizeSlider = document.getElementById('font-size');
+  const fontSizeValue = document.getElementById('font-size-value');
+  const resetBtn = document.getElementById('reset-progress');
+
+  // 1. 逆向模式：先选择平/片假名再开始练习
+  hiraBtn.addEventListener('click', () => {
+    selectedKanaType = 'hiragana';
+    modal.style.display = 'none';
+    initPractice();
+  });
+
+  kataBtn.addEventListener('click', () => {
+    selectedKanaType = 'katakana';
+    modal.style.display = 'none';
+    initPractice();
+  });
+
+  // 2. 提交验证：仅对比所选类型的假名，同一罗马音不报错
+  submitBtn.addEventListener('click', validateInput);
+  // 回车提交（移动端输入优化）
+  kanaInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      validateInput();
     }
+  });
 
-    const mix = (c, w, p) => Math.round(c * (1 - p) + w * p);
-    
-    const rL = mix(r, 255, 0.90);
-    const gL = mix(g, 255, 0.90);
-    const bL = mix(b, 255, 0.90);
-    const containerLight = `rgb(${rL}, ${gL}, ${bL})`;
-    
-    const rD = mix(r, 0, 0.6);
-    const gD = mix(g, 0, 0.6);
-    const bD = mix(b, 0, 0.6);
-    const containerDark = `rgb(${rD}, ${gD}, ${bD})`;
+  // 3. 设置界面交互优化
+  // 主题切换
+  themeSelect.addEventListener('change', () => {
+    document.body.className = `${themeSelect.value}-theme`;
+    localStorage.setItem('selectedTheme', themeSelect.value);
+  });
 
-    const rOnL = mix(r, 0, 0.6); 
-    const gOnL = mix(g, 0, 0.6); 
-    const bOnL = mix(b, 0, 0.6); 
-    const onContainerLight = `rgb(${rOnL}, ${gOnL}, ${bOnL})`;
-    const onContainerDark = `rgb(${rL}, ${gL}, ${bL})`;
+  // 字体大小调整
+  fontSizeSlider.addEventListener('input', () => {
+    const size = fontSizeSlider.value;
+    fontSizeValue.textContent = `${size}px`;
+    document.body.style.fontSize = `${size}px`;
+    localStorage.setItem('fontSize', size);
+  });
 
-    if (userSettings.isDarkMode) {
-        root.style.setProperty('--primary-container', containerDark);
-        root.style.setProperty('--on-primary-container', onContainerDark);
-    } else {
-        root.style.setProperty('--primary-container', containerLight);
-        root.style.setProperty('--on-primary-container', onContainerLight);
+  // 重置进度
+  resetBtn.addEventListener('click', () => {
+    if (confirm('确定要重置练习进度吗？')) {
+      initPractice();
+      feedbackText.textContent = '';
+      kanaInput.value = '';
     }
-}
+  });
 
-// --- 初始化 ---
-window.onload = () => {
-    applyTheme(userSettings.themeColor);
-    applyLayout(userSettings.layout);
-    updateKanaList();
-    
-    // 监听输入，控制 Placeholder 隐藏（作为辅助，主要靠 CSS :focus）
-    romanjiInput.addEventListener('input', () => {
-        if (romanjiInput.value.length > 0) {
-            romanjiInput.classList.add('has-value');
-        } else {
-            romanjiInput.classList.remove('has-value');
-        }
-    });
+  // 4. 移动端输入体验优化：聚焦时滚动到练习区
+  kanaInput.addEventListener('focus', () => {
+    setTimeout(() => {
+      const practiceSection = document.querySelector('.practice-section');
+      window.scrollTo({
+        top: practiceSection.offsetTop - 20,
+        behavior: 'smooth'
+      });
+    }, 100);
+  });
 
-    switchView('training');
-};
-
-// --- 核心逻辑 ---
-
-function updateKanaList() {
-    const activeForms = Array.from(document.querySelectorAll('#form-options .filter-chip.selected'))
-                             .map(chip => chip.dataset.value);
-    const activeTypes = Array.from(document.querySelectorAll('#type-options .filter-chip.selected'))
-                             .map(chip => chip.dataset.value);
-
-    const typeMap = {
-        'seion': ['清音', '拔音'],
-        'dakuon': ['浊音'],
-        'handakuon': ['半浊音'],
-        'youon': ['拗音'],
-        'special': ['特殊假名']
-    };
-    const formMap = { 'hiragana': '平假名', 'katakana': '片假名' };
-
-    filteredKanaList = allKana.filter(k => {
-        const formMatch = activeForms.some(f => k.form === formMap[f]);
-        const typeMatch = activeTypes.some(t => typeMap[t].includes(k.type));
-        return formMatch && typeMatch;
-    });
-
-    if (filteredKanaList.length === 0) {
-        alert("请至少选择一种假名类型！");
-        return;
-    }
-
-    unusedKanaList = [...filteredKanaList];
-    nextKana();
-}
-
-function nextKana() {
-    if (filteredKanaList.length === 0) return;
-
-    if (unusedKanaList.length === 0) {
-        unusedKanaList = [...filteredKanaList];
-    }
-
-    const randomIndex = Math.floor(Math.random() * unusedKanaList.length);
-    currentKana = unusedKanaList[randomIndex];
-    unusedKanaList.splice(randomIndex, 1);
-
-    kanaDisplay.textContent = currentKana.kana;
-    
-    // 关键修复：先聚焦，确立 :focus 状态
-    romanjiInput.focus();
-    
-    // 再清空内容，此时 :focus 生效，placeholder 保持隐藏
-    romanjiInput.value = '';
-    romanjiInput.classList.remove('has-value');
-    
-    feedbackDisplay.textContent = '';
-    kanaCard.classList.remove('shake');
-}
-
-function checkAnswer() {
-    if (!currentKana) return;
-
-    const input = romanjiInput.value.trim().toLowerCase();
-    const answers = Array.isArray(currentKana.romanji) ? currentKana.romanji : [currentKana.romanji];
-
-    if (answers.includes(input)) {
-        feedbackDisplay.textContent = "正确！";
-        feedbackDisplay.style.color = "var(--success)";
-        setTimeout(nextKana, 400);
-    } else {
-        feedbackDisplay.textContent = `错误：应为 ${answers.join(' / ')}`;
-        feedbackDisplay.style.color = "var(--error)";
-        kanaCard.classList.add('shake');
-        setTimeout(() => kanaCard.classList.remove('shake'), 500);
-    }
-}
-
-// --- 视图管理 ---
-
-function switchView(viewName) {
-    if (viewName === 'training') {
-        trainingView.classList.remove('hidden');
-        allCardsView.classList.add('hidden');
-        showAllButton.textContent = 'view_cozy';
-        currentView = 'training';
-        if (!currentKana) nextKana();
-    } else if (viewName === 'list') {
-        trainingView.classList.add('hidden');
-        allCardsView.classList.remove('hidden');
-        showAllButton.textContent = 'arrow_back';
-        renderAllCards();
-        currentView = 'list';
-    }
-}
-
-function renderAllCards() {
-    allCardsList.innerHTML = '';
-    allKana.forEach(kana => {
-        const card = document.createElement('div');
-        card.className = 'all-card';
-        const romanjiText = Array.isArray(kana.romanji) ? kana.romanji.join(' / ') : kana.romanji;
-        card.innerHTML = `<span class="kana-char">${kana.kana}</span><br><span class="romanji-char">${romanjiText}</span>`;
-        allCardsList.appendChild(card);
-    });
-}
-
-// --- 主题与外观 ---
-
-function applyTheme(colorHex) {
-    userSettings.themeColor = colorHex;
-    updateColorVariables(colorHex); 
-    
-    themeDots.forEach(dot => {
-        if (dot.dataset.color.toLowerCase() === colorHex.toLowerCase()) {
-            dot.classList.add('selected');
-        } else {
-            dot.classList.remove('selected');
-        }
-    });
-    customColorPicker.value = colorHex;
-}
-
-function applyLayout(layoutType) {
-    userSettings.layout = layoutType;
-    trainingLayoutContainer.className = `training-layout layout-${layoutType}`;
-    document.querySelectorAll('#layout-options .filter-chip').forEach(chip => {
-        if (chip.dataset.value === layoutType) {
-            chip.classList.add('selected');
-        } else {
-            chip.classList.remove('selected');
-        }
-    });
-}
-
-function toggleDarkMode(isDark) {
-    userSettings.isDarkMode = isDark;
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
-    applyTheme(userSettings.themeColor);
-}
-
-// --- 事件监听 ---
-
-inputForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    checkAnswer();
+  // 初始化本地存储的设置
+  initSettings();
 });
 
-showAllButton.addEventListener('click', () => {
-    if (currentView === 'training') {
-        switchView('list');
-    } else {
-        switchView('training');
-    }
-});
+/**
+ * 初始化练习：加载随机罗马音
+ */
+function initPractice() {
+  const romanjis = Object.keys(kanaMap[selectedKanaType]);
+  currentRomanji = romanjis[Math.floor(Math.random() * romanjis.length)];
+  document.getElementById('current-romanji').textContent = `罗马音：${currentRomanji}`;
+}
 
-settingsButton.addEventListener('click', () => {
-    settingsDialogOverlay.classList.remove('hidden');
-});
+/**
+ * 验证用户输入：仅对比所选类型的假名
+ */
+function validateInput() {
+  const kanaInput = document.getElementById('kana-input');
+  const feedbackText = document.getElementById('feedback-text');
+  const userInput = kanaInput.value.trim();
+  const correctKana = kanaMap[selectedKanaType][currentRomanji];
 
-settingsDialogOverlay.addEventListener('click', (e) => {
-    if (e.target === settingsDialogOverlay) {
-        settingsDialogOverlay.classList.add('hidden');
-    }
-});
+  if (!userInput) {
+    feedbackText.textContent = '请输入假名';
+    feedbackText.style.color = '#ff5722';
+    return;
+  }
 
-settingsApplyBtn.addEventListener('click', () => {
-    toggleDarkMode(darkModeToggle.checked);
-    const layoutChip = document.querySelector('#layout-options .filter-chip.selected');
-    if (layoutChip) applyLayout(layoutChip.dataset.value);
-    updateKanaList();
-    settingsDialogOverlay.classList.add('hidden');
-});
+  if (userInput === correctKana) {
+    feedbackText.textContent = '正确！🎉';
+    feedbackText.style.color = '#4caf50';
+    // 延迟切换下一个，让用户看到反馈
+    setTimeout(() => {
+      initPractice();
+      kanaInput.value = '';
+      feedbackText.textContent = '';
+    }, 800);
+  } else {
+    feedbackText.textContent = `错误，正确答案：${correctKana}`;
+    feedbackText.style.color = '#f44336';
+  }
+}
 
-chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-        const parent = chip.parentElement;
-        if (parent.id === 'layout-options') {
-            parent.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('selected'));
-            chip.classList.add('selected');
-        } else {
-            chip.classList.toggle('selected');
-        }
-    });
-});
+/**
+ * 初始化本地存储的设置（主题、字体大小）
+ */
+function initSettings() {
+  // 主题
+  const savedTheme = localStorage.getItem('selectedTheme') || 'purple';
+  document.getElementById('theme').value = savedTheme;
+  document.body.className = `${savedTheme}-theme`;
 
-themeDots.forEach(dot => {
-    dot.addEventListener('click', () => applyTheme(dot.dataset.color));
-});
-
-customColorPicker.addEventListener('input', (e) => {
-    applyTheme(e.target.value);
-    themeDots.forEach(d => d.classList.remove('selected'));
-});
+  // 字体大小
+  const savedFontSize = localStorage.getItem('fontSize') || 16;
+  document.getElementById('font-size').value = savedFontSize;
+  document.getElementById('font-size-value').textContent = `${savedFontSize}px`;
+  document.body.style.fontSize = `${savedFontSize}px`;
+}
