@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日语五十音训练</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 异步加载字体：不阻塞首屏渲染与事件绑定（此前 window.onload 需等字体，按钮会短暂失灵） -->
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+    <!-- 图标字体用 display=block：加载期间隐藏字形，避免闪现 "settings" 等图标名原文 -->
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block">
+    </noscript>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -57,77 +65,116 @@
 
         <!-- 列表视图 -->
         <div id="all-cards-view" class="view hidden">
+            <div class="list-toolbar">
+                <span class="material-symbols-rounded">zoom_out</span>
+                <input type="range" id="list-zoom" min="60" max="220" step="10" value="100" aria-label="卡片缩放">
+                <span class="material-symbols-rounded">zoom_in</span>
+                <span id="list-zoom-label">100%</span>
+            </div>
             <div id="all-cards-list" class="all-cards-grid"></div>
         </div>
     </div>
 
     <!-- 设置弹窗 -->
     <div id="settings-dialog-overlay" class="md3-dialog-overlay hidden">
-        <div class="md3-dialog" id="settings-dialog-content">
+        <div class="md3-dialog" id="settings-dialog-content" role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title">
             <div class="dialog-header">
-                <span class="material-symbols-rounded">tune</span>
-                <h3>设置</h3>
+                <span class="material-symbols-rounded header-icon">tune</span>
+                <h3 id="settings-dialog-title">设置</h3>
             </div>
-            
+
             <div class="dialog-content">
-                <section class="settings-section">
-                    <div class="section-title">布局方向 (PC端)</div>
-                    <div class="chip-set" id="layout-options">
-                        <button class="filter-chip selected" data-value="vertical">垂直居中</button>
-                        <button class="filter-chip" data-value="horizontal">左右分栏</button>
+                <!-- 布局方向：互斥单选 → 分段按钮 -->
+                <section class="settings-section" id="layout-section">
+                    <div class="section-title">布局方向</div>
+                    <div class="segmented-group" id="layout-options" role="radiogroup" aria-label="布局方向">
+                        <button type="button" class="segmented-button selected" data-value="vertical" role="radio" aria-checked="true">
+                            <span class="material-symbols-rounded seg-icon">check</span>
+                            <span>垂直居中</span>
+                        </button>
+                        <button type="button" class="segmented-button" data-value="horizontal" role="radio" aria-checked="false">
+                            <span class="material-symbols-rounded seg-icon">check</span>
+                            <span>左右分栏</span>
+                        </button>
                     </div>
                 </section>
 
+                <!-- 假名模式：多选 → 筛选芯片 -->
                 <section class="settings-section">
                     <div class="section-title">假名模式</div>
                     <div class="chip-set" id="form-options">
-                        <button class="filter-chip selected" data-value="hiragana">平假名</button>
-                        <button class="filter-chip selected" data-value="katakana">片假名</button>
+                        <button type="button" class="filter-chip selected" data-value="hiragana" aria-pressed="true"><span class="material-symbols-rounded chip-icon">check</span>平假名</button>
+                        <button type="button" class="filter-chip selected" data-value="katakana" aria-pressed="true"><span class="material-symbols-rounded chip-icon">check</span>片假名</button>
                     </div>
                 </section>
 
+                <!-- 假名种类：多选 → 筛选芯片 -->
                 <section class="settings-section">
                     <div class="section-title">假名种类</div>
                     <div class="chip-set" id="type-options">
-                        <button class="filter-chip selected" data-value="seion">清音</button>
-                        <button class="filter-chip selected" data-value="dakuon">浊音</button>
-                        <button class="filter-chip selected" data-value="handakuon">半浊音</button>
-                        <button class="filter-chip selected" data-value="youon">拗音</button>
-                        <button class="filter-chip selected" data-value="special">特殊</button>
+                        <button type="button" class="filter-chip selected" data-value="seion" aria-pressed="true"><span class="material-symbols-rounded chip-icon">check</span>清音</button>
+                        <button type="button" class="filter-chip selected" data-value="dakuon" aria-pressed="true"><span class="material-symbols-rounded chip-icon">check</span>浊音</button>
+                        <button type="button" class="filter-chip selected" data-value="handakuon" aria-pressed="true"><span class="material-symbols-rounded chip-icon">check</span>半浊音</button>
+                        <button type="button" class="filter-chip selected" data-value="youon" aria-pressed="true"><span class="material-symbols-rounded chip-icon">check</span>拗音</button>
+                        <button type="button" class="filter-chip selected" data-value="special" aria-pressed="true"><span class="material-symbols-rounded chip-icon">check</span>特殊</button>
                     </div>
                 </section>
 
+                <!-- 外观：深色模式行 + 主/次双强调色色板 -->
                 <section class="settings-section">
                     <div class="section-title">外观</div>
-                    <div class="theme-controls">
-                        <div class="color-options">
-                            <div class="color-dot selected" data-color="#6750A4" style="background: #6750A4;"></div>
-                            <div class="color-dot" data-color="#9C27B0" style="background: #9C27B0;"></div>
-                            <div class="color-dot" data-color="#E91E63" style="background: #E91E63;"></div>
-                            <div class="color-dot" data-color="#F44336" style="background: #F44336;"></div>
-                            <div class="color-dot" data-color="#FF9800" style="background: #FF9800;"></div>
-                            <div class="color-dot" data-color="#009688" style="background: #009688;"></div>
-                            <div class="color-dot" data-color="#2196F3" style="background: #2196F3;"></div>
+                    <label class="setting-row" for="dark-mode-toggle">
+                        <span class="material-symbols-rounded row-icon">dark_mode</span>
+                        <span class="row-label">深色模式</span>
+                        <span class="md3-switch">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="slider"></span>
+                        </span>
+                    </label>
+
+                    <div class="color-role-group">
+                        <div class="color-role-label">主强调色<span class="color-role-hint">顶栏 · 按钮 · 开关</span></div>
+                        <div class="color-options" id="primary-color-options">
+                            <button type="button" class="color-dot selected" data-color="#6750A4" style="--swatch:#6750A4" aria-label="主色：紫色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#9C27B0" style="--swatch:#9C27B0" aria-label="主色：品红"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#E91E63" style="--swatch:#E91E63" aria-label="主色：玫红"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#F44336" style="--swatch:#F44336" aria-label="主色：红色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#FF9800" style="--swatch:#FF9800" aria-label="主色：橙色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#009688" style="--swatch:#009688" aria-label="主色：青绿"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#2196F3" style="--swatch:#2196F3" aria-label="主色：蓝色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot custom-dot" id="custom-primary-dot" aria-label="自定义主色">
+                                <span class="material-symbols-rounded icon-colorize">colorize</span>
+                                <span class="material-symbols-rounded icon-check">check</span>
+                            </button>
+                            <!-- 原生取色器仅作为逻辑载体，视觉上由自定义色块代替 -->
+                            <input type="color" id="custom-color-picker" class="visually-hidden" value="#6750A4" tabindex="-1" aria-hidden="true">
                         </div>
-                        <div class="custom-color-wrapper">
-                            <label for="custom-color-picker">自定义颜色:</label>
-                            <input type="color" id="custom-color-picker" value="#6750A4">
-                        </div>
-                        
-                        <div class="switch-row">
-                            <label class="md3-switch">
-                                <input type="checkbox" id="dark-mode-toggle">
-                                <span class="slider"></span>
-                            </label>
-                            <span>深色模式</span>
+                    </div>
+
+                    <div class="color-role-group">
+                        <div class="color-role-label">次强调色<span class="color-role-hint">选中芯片 · 分段按钮</span></div>
+                        <div class="color-options" id="secondary-color-options">
+                            <button type="button" class="color-dot selected" data-color="#6750A4" style="--swatch:#6750A4" aria-label="辅色：紫色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#9C27B0" style="--swatch:#9C27B0" aria-label="辅色：品红"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#E91E63" style="--swatch:#E91E63" aria-label="辅色：玫红"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#F44336" style="--swatch:#F44336" aria-label="辅色：红色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#FF9800" style="--swatch:#FF9800" aria-label="辅色：橙色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#009688" style="--swatch:#009688" aria-label="辅色：青绿"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot" data-color="#2196F3" style="--swatch:#2196F3" aria-label="辅色：蓝色"><span class="material-symbols-rounded">check</span></button>
+                            <button type="button" class="color-dot custom-dot" id="custom-secondary-dot" aria-label="自定义辅色">
+                                <span class="material-symbols-rounded icon-colorize">colorize</span>
+                                <span class="material-symbols-rounded icon-check">check</span>
+                            </button>
+                            <input type="color" id="custom-secondary-picker" class="visually-hidden" value="#6750A4" tabindex="-1" aria-hidden="true">
                         </div>
                     </div>
                 </section>
             </div>
 
             <div class="dialog-actions">
-                <!-- 这里的按钮没有 main-submit-btn 类，所以不会被错误放大 -->
-                <button class="md3-button-filled" id="apply-settings">完成</button>
+                <button type="button" class="md3-text-button" id="reset-settings">恢复默认</button>
+                <span class="actions-spacer"></span>
+                <button type="button" class="md3-button-filled" id="apply-settings">完成</button>
             </div>
         </div>
     </div>

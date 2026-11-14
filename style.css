@@ -2,33 +2,45 @@
     --primary-source: #6750A4;
     --primary: var(--primary-source);
     --on-primary: #FFFFFF;
-    
-    --primary-container: #EADDFF; 
+
+    --primary-container: #EADDFF;
     --on-primary-container: #21005D;
 
-    --surface: #FDF8FD;
-    --surface-container: #F3EDF7; 
+    --secondary-source: #009688;
+    --secondary-container: #E0F2F1;
+    --on-secondary-container: #00433D;
+
+    --surface: #F7F5FA;
+    --surface-container: #F1EEF5;
+    --surface-container-high: #EBE8F0;
     --on-surface: #1C1B1F;
     --on-surface-variant: #49454F;
     --outline: #79747E;
-    
+    --outline-variant: #CAC4D0;
+    --state-hover: rgba(28, 27, 31, 0.08);
+
     --error: #B3261E;
     --success: #2E7D32;
-    
+
     --app-bar-height: 64px;
     --kana-text-color: #008000;
+
+    --md-easing: cubic-bezier(0.2, 0, 0, 1);
+    --md-easing-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
+/* 注意：表面色/容器色由 script.js 按主强调色实时推导并挂在 <html> 上。
+   假名字色（绿）与卡片底色保持默认值，不接入强调色系统；
+   深色模式下也绝不能在这里写表面色/容器色的同名覆盖 —— 否则会重新出现
+   “深色模式强制变回紫色”的作用域覆盖 bug（body 上的声明距离元素更近，
+   优先级高于 html 上的内联样式）。 */
 body.dark-mode {
-    --surface: #141218;
-    --surface-container: #1D1B20;
     --on-surface: #E6E1E5;
     --on-surface-variant: #CAC4D0;
     --outline: #938F99;
+    --outline-variant: #49454F;
+    --state-hover: rgba(230, 225, 229, 0.08);
     --kana-text-color: #A5D6A7;
-    
-    --primary-container: #4F378B;
-    --on-primary-container: #EADDFF;
 }
 
 body {
@@ -41,6 +53,10 @@ body {
     display: flex; flex-direction: column;
 }
 
+/* 关键修复：按钮元素默认不继承字体，会回退到浏览器默认字体（Arial），
+   这是控件看起来“廉价”的最大来源 */
+button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background-color: var(--outline); border-radius: 4px; opacity: 0.5; }
@@ -51,9 +67,18 @@ body {
     background-color: var(--primary-container);
     color: var(--on-surface);
     display: flex; align-items: center;
-    padding: 0 16px;
+    padding: 0 8px 0 24px;
     position: fixed; top: 0; left: 0; right: 0; z-index: 10;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, box-shadow 0.25s var(--md-easing);
+    /* 发丝线代替生硬的色块边界，深浅色下都成立 */
+    box-shadow: 0 1px 0 var(--outline-variant);
+}
+
+/* Google 风格滚动海拔：内容滚动后顶栏浮起，出现柔和双层阴影 */
+.md3-top-app-bar.scrolled {
+    box-shadow: 0 1px 0 var(--outline-variant),
+                0 2px 6px rgba(0,0,0,0.10),
+                0 6px 16px rgba(0,0,0,0.08);
 }
 
 .app-bar-content {
@@ -61,21 +86,45 @@ body {
     display: flex; justify-content: space-between; align-items: center;
 }
 
-.app-bar-title { font-size: 22px; font-weight: 500; color: var(--on-surface); }
+.app-bar-title {
+    font-size: 22px; font-weight: 500;
+    color: var(--on-primary-container);
+    letter-spacing: 0.3px;
+    user-select: none;
+}
 
 .app-bar-actions {
-    display: flex; flex-direction: row; gap: 8px; flex-wrap: nowrap;
+    display: flex; flex-direction: row; gap: 4px; flex-wrap: nowrap;
 }
 
 .md3-icon-button {
-    background: transparent; border: none;
-    color: var(--on-surface-variant);
-    padding: 10px; border-radius: 50%;
+    width: 40px; height: 40px; padding: 0;
+    background: transparent; border: none; border-radius: 50%;
+    color: var(--on-primary-container);
     cursor: pointer; font-size: 24px;
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s;
+    position: relative; overflow: hidden;
+    transition: background-color 0.2s, transform 0.15s var(--md-easing);
 }
-.md3-icon-button:hover { background-color: rgba(0,0,0,0.08); }
+.md3-icon-button:hover { background-color: var(--state-hover); }
+.md3-icon-button:active { transform: scale(0.9); }
+.md3-icon-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* 视图切换时图标的弹性入场（Google 式 micro-motion） */
+.icon-pop { animation: icon-pop 0.3s var(--md-easing-emphasized); }
+@keyframes icon-pop {
+    0%   { transform: scale(0.55) rotate(-25deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* --- 按压波纹（Material ripple） --- */
+.ripple {
+    position: absolute; border-radius: 50%;
+    background: currentColor; opacity: 0.16;
+    transform: scale(0); pointer-events: none;
+    animation: ripple-grow 0.45s ease-out forwards;
+}
+@keyframes ripple-grow { to { transform: scale(1); opacity: 0; } }
 
 /* --- 布局 --- */
 .main-scaffold {
@@ -111,8 +160,8 @@ body {
     width: 280px; height: 280px;
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 
-                0px 4px 5px 0px rgba(0, 0, 0, 0.14), 
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+                0px 4px 5px 0px rgba(0, 0, 0, 0.14),
                 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
     transition: width 0.3s, height 0.3s;
 }
@@ -195,6 +244,7 @@ body.dark-mode .original-card {
     display: flex; align-items: center; justify-content: center;
     gap: 8px; transition: all 0.2s;
     box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    position: relative; overflow: hidden;
 }
 .md3-button-filled:hover {
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
@@ -235,73 +285,264 @@ body.dark-mode .original-card {
 }
 
 /* --- 列表预览 --- */
+.list-toolbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 4px 4px 16px;
+    color: var(--on-surface-variant);
+}
+.list-toolbar .material-symbols-rounded { font-size: 20px; user-select: none; }
+#list-zoom {
+    flex: 1; height: 4px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+#list-zoom-label {
+    font-size: 13px; font-weight: 500; min-width: 44px; text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--on-surface);
+}
+
+/* 缩放通过基础卡片宽度实现：字号/内边距同乘缩放系数，
+   所以无论多大，“单张卡片”的内部比例永远不变，变的只是页面能容纳几张 */
 .all-cards-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(88px * var(--list-zoom, 1)), 1fr));
+    /* 关键：start 对齐避免 stretch 与 aspect-ratio 相互干扰，保证卡片正方形 */
+    align-items: start;
     gap: 16px; width: 100%;
 }
 .all-card {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 16px 8px; background-color: var(--surface-container);
-    border-radius: 12px;
+    /* border-box 让 aspect-ratio 作用在整卡上，保证视觉正方形 */
+    box-sizing: border-box;
+    padding: calc(14px * var(--list-zoom, 1)) calc(6px * var(--list-zoom, 1));
+    background-color: var(--surface-container);
+    border-radius: calc(12px * var(--list-zoom, 1));
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    aspect-ratio: 1; transition: transform 0.2s;
+    aspect-ratio: 1; transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center;
 }
-.all-card:hover { transform: translateY(-2px); }
+.all-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.14), 0 3px 8px rgba(0,0,0,0.18);
+}
 body:not(.dark-mode) .all-card { background-color: #fff; }
-.kana-char { font-size: 2rem; font-weight: 500; color: var(--on-surface); }
-.romanji-char { font-size: 0.9rem; color: var(--on-surface-variant); margin-top: 4px; }
+.kana-char {
+    font-size: calc(32px * var(--list-zoom, 1));
+    font-weight: 500;
+    color: var(--on-surface); line-height: 1.1;
+}
+.romanji-char {
+    font-size: max(10px, calc(14px * var(--list-zoom, 1)));
+    color: var(--on-surface-variant); margin-top: calc(4px * var(--list-zoom, 1));
+    line-height: 1.2; overflow-wrap: break-word;
+}
 
 /* --- 设置弹窗 --- */
 .md3-dialog-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0,0,0,0.5); z-index: 100;
+    background-color: rgba(0,0,0,0.4); z-index: 100;
     display: flex; align-items: center; justify-content: center;
     backdrop-filter: blur(4px);
+    animation: overlay-in 0.2s ease-out;
 }
 .md3-dialog {
-    background-color: var(--surface-container);
-    border-radius: 28px; width: 90%; max-width: 420px;
-    padding: 24px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background-color: var(--surface-container-high);
+    border-radius: 28px;
+    width: min(420px, 92vw);
+    box-shadow: 0 8px 12px 6px rgba(0,0,0,0.15), 0 4px 4px 0 rgba(0,0,0,0.3);
     display: flex; flex-direction: column; max-height: 85vh;
+    animation: dialog-in 0.25s var(--md-easing-emphasized);
+    overflow: hidden;
 }
-.dialog-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; color: var(--on-surface); }
-.dialog-header h3 { margin: 0; font-size: 24px; font-weight: 400; }
-.dialog-content { overflow-y: auto; flex: 1; }
-.settings-section { margin-bottom: 32px; }
-.section-title { font-size: 14px; color: var(--primary); font-weight: 500; margin-bottom: 12px; }
+@keyframes overlay-in { from { opacity: 0; } }
+@keyframes dialog-in {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
 
+.dialog-header { display: flex; align-items: center; gap: 12px; padding: 22px 24px 14px; color: var(--on-surface); }
+.dialog-header .header-icon { font-size: 24px; color: var(--primary); }
+.dialog-header h3 { margin: 0; font-size: 22px; font-weight: 500; }
+
+.dialog-content {
+    overflow-y: auto; flex: 1;
+    padding: 0 24px 8px;
+    overscroll-behavior: contain;
+}
+
+/* 分组之间用发丝线分隔，替代原来靠 margin 堆出来的“流水账”结构 */
+.settings-section { margin-bottom: 24px; }
+.settings-section + .settings-section {
+    border-top: 1px solid var(--outline-variant);
+    padding-top: 22px;
+}
+.section-title {
+    font-size: 14px; color: var(--on-surface-variant);
+    font-weight: 600; letter-spacing: 0.2px;
+    margin-bottom: 14px;
+}
+
+/* --- 分段按钮（单选语义，用于布局方向） --- */
+.segmented-group {
+    display: flex; width: 100%; height: 40px;
+    border: 1px solid var(--outline);
+    border-radius: 100px; overflow: hidden;
+}
+.segmented-button {
+    flex: 1; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 500;
+    color: var(--on-surface);
+    transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+.segmented-button + .segmented-button { border-left: 1px solid var(--outline); }
+.segmented-button.selected + .segmented-button { border-left-color: transparent; }
+.segmented-button:hover:not(.selected) { background-color: var(--state-hover); }
+.segmented-button.selected {
+    background-color: var(--secondary-container);
+    color: var(--on-secondary-container);
+}
+.seg-icon {
+    font-size: 18px; width: 0; opacity: 0; overflow: hidden;
+    transition: width 0.2s var(--md-easing), opacity 0.15s, margin-right 0.2s var(--md-easing);
+}
+.segmented-button.selected .seg-icon { width: 18px; opacity: 1; margin-right: 4px; }
+
+/* --- 筛选芯片（多选语义） --- */
 .chip-set { display: flex; flex-wrap: wrap; gap: 8px; }
 .filter-chip {
-    background-color: transparent; border: 1px solid var(--outline);
-    color: var(--on-surface-variant); border-radius: 8px;
-    padding: 8px 16px; font-size: 14px; font-weight: 500;
-    cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center;
+    height: 32px; padding: 0 16px;
+    border-radius: 100px;
+    background-color: transparent;
+    border: 1px solid var(--outline-variant);
+    color: var(--on-surface-variant);
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    position: relative; overflow: hidden;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+.filter-chip:hover:not(.selected) { background-color: var(--state-hover); }
+.filter-chip:active { transform: scale(0.97); }
+.chip-icon {
+    font-size: 18px; width: 0; opacity: 0; overflow: hidden;
+    transition: width 0.2s var(--md-easing), opacity 0.15s, margin-right 0.2s var(--md-easing);
 }
 .filter-chip.selected {
-    background-color: var(--primary-container);
-    color: var(--on-primary-container);
+    background-color: var(--secondary-container);
+    color: var(--on-secondary-container);
     border-color: transparent;
 }
-.color-options { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
-.color-dot { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-.color-dot.selected { border-color: var(--on-surface); transform: scale(1.1); }
-.switch-row { display: flex; align-items: center; gap: 16px; margin-top: 24px; cursor: pointer; }
-.md3-switch { position: relative; width: 52px; height: 32px; }
-.md3-switch input { opacity: 0; width: 0; height: 0; }
+.filter-chip.selected .chip-icon { width: 18px; opacity: 1; margin-right: 4px; }
+
+/* 整组至少保留一项的“拒绝”反馈：抖动 + 错误色描边一闪 */
+@keyframes deny-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+.filter-chip.deny {
+    animation: deny-shake 0.3s ease-in-out;
+    border-color: var(--error);
+    color: var(--error);
+}
+
+/* --- 外观：设置行 + 开关 --- */
+.setting-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 4px 0 20px;
+    cursor: pointer;
+    user-select: none;
+}
+.row-icon { font-size: 22px; color: var(--on-surface-variant); }
+.row-label { flex: 1; font-size: 15px; color: var(--on-surface); }
+
+.md3-switch { position: relative; width: 52px; height: 32px; flex-shrink: 0; display: inline-block; }
+.md3-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: var(--surface-container); border-radius: 34px; transition: .4s;
-    border: 2px solid var(--outline); box-sizing: border-box;
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: var(--surface-container);
+    border-radius: 100px; box-sizing: border-box;
+    border: 2px solid var(--outline);
+    transition: background-color 0.25s var(--md-easing), border-color 0.25s var(--md-easing);
 }
 .slider:before {
-    position: absolute; content: ""; height: 16px; width: 16px; left: 6px; bottom: 6px;
-    background-color: var(--outline); border-radius: 50%; transition: .4s;
+    position: absolute; content: "";
+    height: 16px; width: 16px; left: 6px; top: 6px;
+    background-color: var(--outline); border-radius: 50%;
+    transition: transform 0.25s var(--md-easing), width 0.25s var(--md-easing),
+                height 0.25s var(--md-easing), left 0.25s var(--md-easing),
+                top 0.25s var(--md-easing), background-color 0.25s var(--md-easing);
 }
 input:checked + .slider { background-color: var(--primary); border-color: var(--primary); }
 input:checked + .slider:before {
-    transform: translateX(20px); background-color: var(--on-primary); width: 24px; height: 24px; bottom: 2px; left: 2px;
+    transform: translateX(20px);
+    width: 24px; height: 24px; left: 2px; top: 2px;
+    background-color: var(--on-primary);
 }
-.dialog-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+
+/* --- 外观：主题色色板 --- */
+/* 36px * 8 + 8px * 7 间距 = 344px，恰好单行放下 7 个预设 + 自定义色块 */
+.color-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.color-dot {
+    width: 36px; height: 36px; padding: 0;
+    border-radius: 50%;
+    background: var(--swatch, transparent);
+    border: 2px solid transparent;
+    /* 2px 同底色间隙，让选中描边和色块之间有呼吸感 */
+    box-shadow: 0 0 0 2px var(--surface-container-high);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s var(--md-easing), border-color 0.2s, box-shadow 0.2s;
+}
+.color-dot:hover { transform: scale(1.06); }
+.color-dot:active { transform: scale(0.97); }
+.color-dot .material-symbols-rounded {
+    font-size: 18px; color: #FFFFFF;
+    opacity: 0; transform: scale(0.5);
+    transition: opacity 0.2s var(--md-easing), transform 0.2s var(--md-easing), color 0.2s;
+}
+.color-dot .material-symbols-rounded.light-text { color: #1C1B1F; }
+.color-dot.selected { border-color: var(--primary); }
+.color-dot.selected .material-symbols-rounded { opacity: 1; transform: scale(1); }
+
+/* 自定义颜色块：常态是彩虹渐变 + 取色图标；激活后底色变为当前自定义色 */
+.color-dot.custom-dot {
+    background: conic-gradient(#F44336, #FF9800, #FFEB3B, #4CAF50, #2196F3, #9C27B0, #F44336);
+}
+.color-dot.custom-dot .icon-check { display: none; }
+.color-dot.custom-dot.is-active { background: var(--swatch, transparent); }
+.color-dot.custom-dot.is-active .icon-colorize { display: none; }
+.color-dot.custom-dot.is-active .icon-check { display: inline-block; }
+
+.visually-hidden {
+    position: absolute; width: 1px; height: 1px;
+    opacity: 0; pointer-events: none;
+}
+
+.dialog-actions { display: flex; align-items: center; gap: 8px; padding: 8px 24px 24px; }
+.dialog-actions .actions-spacer { flex: 1; }
+.dialog-actions .md3-button-filled { height: 40px; padding: 0 28px; }
+
+.md3-text-button {
+    height: 40px; padding: 0 16px;
+    border: none; border-radius: 100px;
+    background: transparent; color: var(--primary);
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    transition: background-color 0.2s;
+}
+.md3-text-button:hover { background-color: var(--state-hover); }
+
+/* 布局方向是纯 PC 概念，窄屏直接隐藏该分组 */
+@media (max-width: 799px) {
+    #layout-section { display: none; }
+}
 
 @keyframes shake {
     0% { transform: translateX(0); }
