@@ -133,7 +133,14 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
     display: flex; justify-content: center;
 }
 
-.view { width: 100%; max-width: 1000px; }
+.view {
+    width: 100%; max-width: 1000px;
+    /* 按内容自高：scaffold 是 flex 容器，默认 stretch 会把 view 拉成可视高度，
+       网格从盒子里溢出绘制，padding-bottom 无法计入滚动区域（拉到底贴边的原因） */
+    align-self: flex-start;
+    /* 底部留白：列表拉到底时最后一行不贴屏幕底边，留出呼吸感 */
+    padding-bottom: 64px;
+}
 .hidden { display: none !important; }
 
 .training-layout { display: flex; transition: all 0.3s ease; width: 100%; }
